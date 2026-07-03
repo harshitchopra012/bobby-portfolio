@@ -232,7 +232,6 @@
   /* ----------------------------------------------------
      PORTFOLIO — data + procedural artwork
   ---------------------------------------------------- */
-  let projects = [];
   const defaultProjects = [
     { title: "Benny's — Jazz Club Identity", cat: "branding", catLabel: "Branding & Logo", h: 420, c: ["#ec0909", "#151109"] },
     { title: "KhaasCup — Indian Tea Branding", cat: "branding", catLabel: "Branding", h: 300, c: ["#ff5e36", "#b3001e"] },
@@ -248,19 +247,61 @@
     { title: "MAAC — Kinetic Typography Reel", cat: "motion", catLabel: "Motion Graphics", h: 360, c: ["#ff4d5a", "#260005"] },
   ];
 
-  function loadProjects() {
-    const stored = localStorage.getItem("bobby_projects");
-    if (stored) {
-      try {
-        projects = JSON.parse(stored);
-      } catch (e) {
-        projects = [...defaultProjects];
-      }
-    } else {
-      projects = [...defaultProjects];
-    }
+  let projects = [...defaultProjects];
+
+  // Try to load cached projects from localStorage first for instant paint
+  const cached = localStorage.getItem("bobby_projects");
+  if (cached) {
+    try {
+      projects = JSON.parse(cached);
+    } catch(e) {}
   }
-  loadProjects();
+
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDCKv2OlgUmNQgoAAWSPteG_JJoHuM0o-8",
+    authDomain: "portfolio-29fd3.firebaseapp.com",
+    projectId: "portfolio-29fd3",
+    storageBucket: "portfolio-29fd3.firebasestorage.app",
+    messagingSenderId: "663405336350",
+    appId: "1:663405336350:web:a2a49463d136246e905b0f",
+    measurementId: "G-PNMGYFB58Q"
+  };
+
+  let db;
+  let analytics;
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    analytics = firebase.analytics();
+  } catch (e) {
+    console.error("Firebase init error:", e);
+  }
+
+  // Fetch from Firebase Firestore in the background
+  function syncWithFirebase() {
+    if (!db) return;
+    db.collection("portfolio").doc("projects").get()
+      .then((doc) => {
+        if (doc.exists) {
+          const list = doc.data().list;
+          if (Array.isArray(list) && list.length > 0) {
+            projects = list;
+            localStorage.setItem("bobby_projects", JSON.stringify(projects));
+            renderGrid();
+          }
+        } else {
+          // If no projects in DB yet, initialize Firestore with our defaults
+          db.collection("portfolio").doc("projects").set({ list: defaultProjects })
+            .catch(err => console.error("Firebase initial set error:", err));
+        }
+      })
+      .catch((err) => {
+        console.error("Firebase get error:", err);
+      });
+  }
+
+  syncWithFirebase();
 
   function hexToRgb(h) {
     const n = parseInt(h.slice(1), 16);
@@ -670,6 +711,12 @@
 
       localStorage.setItem("bobby_projects", JSON.stringify(projects));
       
+      if (window.firebase && db) {
+        db.collection("portfolio").doc("projects").set({ list: projects })
+          .then(() => console.log("Firestore synced successfully"))
+          .catch((err) => console.error("Firestore sync error:", err));
+      }
+
       renderAdminItems();
       updateCodeExport();
       resetForm();
@@ -680,6 +727,13 @@
       if (confirm(`Are you sure you want to delete "${projects[idx].title}"?`)) {
         projects.splice(idx, 1);
         localStorage.setItem("bobby_projects", JSON.stringify(projects));
+        
+        if (window.firebase && db) {
+          db.collection("portfolio").doc("projects").set({ list: projects })
+            .then(() => console.log("Firestore synced successfully"))
+            .catch((err) => console.error("Firestore sync error:", err));
+        }
+
         renderAdminItems();
         updateCodeExport();
         renderGrid();
