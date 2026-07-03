@@ -1,0 +1,19 @@
+# Node / build artifacts
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Visual Studio Code
+.vscode/
+
+# OS generated files
+*.log
+*.tmp
+*.swp
+
+# OneDrive files
+~$*
+
+# Project files
+dist/
+build/

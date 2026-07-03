@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#050505" />
+
+  <title>Bobby Chadha — Graphic Designer & Brand Creator</title>
+  <meta name="description" content="Bobby Chadha is a graphic designer and brand creator specialising in retro-style visual systems, brand identity, typography, layout, and motion graphics." />
+  <meta name="keywords" content="Bobby Chadha, graphic designer, brand identity, motion graphics, layout design, packaging design, typography, portfolio" />
+  <meta name="author" content="Bobby Chadha" />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Bobby Chadha — Graphic Designer & Brand Creator" />
+  <meta property="og:description" content="Brand identity, typography, motion graphics and expressive layout systems by Bobby Chadha." />
+  <meta property="og:image" content="assets/og-image.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- SEO: structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Bobby Chadha",
+    "jobTitle": "Graphic Designer & Brand Creator",
+    "url": "https://bobbychadha.design",
+    "sameAs": [
+      "https://instagram.com/",
+      "https://behance.net/gallery/233480779/Jazz-Club-Brand-Identity-Design",
+      "https://dribbble.com/",
+      "https://linkedin.com/"
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ===== PRELOADER ===== -->
+  <div class="preloader" id="preloader">
+    <div class="preloader__inner">
+      <div class="preloader__name">BOBBY&nbsp;CHADHA</div>
+      <div class="preloader__counter" id="preloaderCounter">0</div>
+      <div class="preloader__bar"><span id="preloaderBar"></span></div>
+      <div class="preloader__tag">Brand Creator</div>
+    </div>
+  </div>
+
+  <!-- ===== CUSTOM CURSOR ===== -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <!-- ===== PROGRESS BAR ===== -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- ===== NAV ===== -->
+  <header class="nav" id="nav">
+    <a href="#hero" class="nav__logo" data-magnetic>
+      <span>BC</span>
+    </a>
+    <nav class="nav__links" id="navLinks">
+      <a href="#work" data-link>Work</a>
+      <a href="#about" data-link>About</a>
+      <a href="#services" data-link>Services</a>
+      <a href="#voices" data-link>Voices</a>
+      <a href="#contact" data-link class="nav__cta" data-magnetic>Let's talk</a>
+    </nav>
+    <button class="nav__burger" id="navBurger" aria-label="Toggle menu">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <main>
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+      <div class="hero__glow"></div>
+      <div class="hero__grain"></div>
+
+      <div class="hero__inner">
+        <div class="hero__meta">
+          <div class="hero__meta-l reveal-fade"><span class="dot"></span> Available for 2026 projects</div>
+          <div class="hero__meta-r reveal-fade">Based in New Delhi · Working worldwide</div>
+        </div>
+
+        <h1 class="hero__word" aria-label="Portfolio">
+          <span class="reveal-mask"><span>
+            <svg viewBox="0 0 1200 215" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+              <defs>
+                <linearGradient id="wordGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0.15" stop-color="#ffffff" />
+                  <stop offset="1" stop-color="#9ea4ba" />
+                </linearGradient>
+              </defs>
+              <text x="600" y="178" text-anchor="middle" textLength="1180" lengthAdjust="spacingAndGlyphs"
+                    font-family="Syne, sans-serif" font-weight="800" font-size="210"
+                    letter-spacing="-6" fill="url(#wordGrad)">PORTFOLIO</text>
+            </svg>
+          </span></span>
+        </h1>
+
+        <div class="hero__caption">
+          <div class="hero__id">
+            <span class="reveal-mask"><span class="hero__name">Bobby Chadha</span></span>
+            <span class="reveal-mask"><span class="hero__role">Graphic Designer &amp; Brand <em>Creator</em></span></span>
+          </div>
+          <div class="hero__cta-wrap">
+            <p class="hero__desc reveal-fade">
+              I shape brands into living, breathing experiences — bold retro-modern identities,
+              balanced layouts, and visual storytelling that defines cultures.
+            </p>
+            <div class="hero__actions reveal-fade">
+              <a href="#work" class="btn btn--primary" data-magnetic><span>View selected work</span></a>
+              <a href="#contact" class="btn btn--ghost" data-magnetic><span>Start a project</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <a href="#work" class="scroll-cue" aria-label="Scroll down">
+        <span class="scroll-cue__text">Scroll</span>
+        <span class="scroll-cue__line"><i></i></span>
+      </a>
+
+      <div class="hero__marquee" aria-hidden="true">
+        <div class="marquee__track">
+          <span>Branding</span><span>•</span><span>Motion</span><span>•</span><span>Packaging</span><span>•</span><span>Social</span><span>•</span><span>UI / UX</span><span>•</span>
+          <span>Branding</span><span>•</span><span>Motion</span><span>•</span><span>Packaging</span><span>•</span><span>Social</span><span>•</span><span>UI / UX</span><span>•</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== INTRO STRIP ===== -->
+    <section class="intro">
+      <p class="intro__text" data-split>
+        I help retail brands, modern products, and local concepts find their authentic visual voice — 
+        turning retro inspirations and typographic rhythm into layouts that feel absolutely inevitable.
+      </p>
+    </section>
+
+    <!-- ===== WORK / PORTFOLIO ===== -->
+    <section class="work" id="work">
+      <div class="section-head reveal-fade">
+        <span class="section-head__index">01</span>
+        <h2 class="section-head__title">Selected <em>Work</em></h2>
+        <p class="section-head__sub">A curated cut of recent projects across disciplines.</p>
+      </div>
+
+      <div class="filters reveal-fade" id="filters">
+        <button class="filter is-active" data-filter="all" data-magnetic>All</button>
+        <button class="filter" data-filter="branding" data-magnetic>Branding</button>
+        <button class="filter" data-filter="social" data-magnetic>Social Media</button>
+        <button class="filter" data-filter="posters" data-magnetic>Posters</button>
+        <button class="filter" data-filter="ui" data-magnetic>UI Design</button>
+        <button class="filter" data-filter="motion" data-magnetic>Motion Graphics</button>
+      </div>
+
+      <div class="grid" id="grid">
+        <!-- items injected by JS -->
+      </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section class="about" id="about">
+      <div class="section-head reveal-fade">
+        <span class="section-head__index">02</span>
+        <h2 class="section-head__title">About <em>Me</em></h2>
+      </div>
+
+      <div class="about__grid">
+        <div class="about__portrait reveal-fade">
+          <div class="about__portrait-inner">
+            <img src="assets/portrait.svg" alt="Portrait of Bobby Chadha" loading="lazy" />
+            <span class="about__badge">Bobby Chadha</span>
+          </div>
+        </div>
+        <div class="about__bio">
+          <p class="about__lead" data-split>
+            I'm Bobby — a designer obsessed with the space where typography, layouts, 
+            and brand culture collide. I treat every project as an editorial canvas.
+          </p>
+          <p class="about__body reveal-fade">
+            My work lives at the intersection of brand identity, tactile packaging, and motion graphics. 
+            Currently pursuing Motion Graphics Pro at MAAC and completing my studies at Delhi University, 
+            I bring 1.5+ years of MAAC specialized training and freelancer agility to ambitious brands.
+          </p>
+
+          <div class="stats">
+            <div class="stat reveal-fade">
+              <span class="stat__num" data-count="2">0</span><span class="stat__plus">+</span>
+              <span class="stat__label">Years of experience</span>
+            </div>
+            <div class="stat reveal-fade">
+              <span class="stat__num" data-count="20">0</span><span class="stat__plus">+</span>
+              <span class="stat__label">Projects delivered</span>
+            </div>
+            <div class="stat reveal-fade">
+              <span class="stat__num" data-count="100">0</span><span class="stat__plus">%</span>
+              <span class="stat__label">Obsessive craft</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="about__skills">
+          <div class="skill reveal-fade" data-skill="92">
+            <div class="skill__head"><span>Brand Identity</span><b>92%</b></div>
+            <div class="skill__track"><i></i></div>
+          </div>
+          <div class="skill reveal-fade" data-skill="85">
+            <div class="skill__head"><span>Motion Graphics</span><b>85%</b></div>
+            <div class="skill__track"><i></i></div>
+          </div>
+          <div class="skill reveal-fade" data-skill="90">
+            <div class="skill__head"><span>Typography &amp; Layout</span><b>90%</b></div>
+            <div class="skill__track"><i></i></div>
+          </div>
+          <div class="skill reveal-fade" data-skill="93">
+            <div class="skill__head"><span>Creative Tools (Adobe Suite)</span><b>93%</b></div>
+            <div class="skill__track"><i></i></div>
+          </div>
+          <div class="skill reveal-fade" data-skill="88">
+            <div class="skill__head"><span>Packaging Design</span><b>88%</b></div>
+            <div class="skill__track"><i></i></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SERVICES ===== -->
+    <section class="services" id="services">
+      <div class="section-head reveal-fade">
+        <span class="section-head__index">03</span>
+        <h2 class="section-head__title">What I <em>Do</em></h2>
+        <p class="section-head__sub">Five disciplines, one obsessive standard.</p>
+      </div>
+
+      <ul class="svc-list" id="svcList">
+        <li class="svc reveal-fade" data-magnetic-soft>
+          <span class="svc__no">01</span>
+          <h3 class="svc__title">Brand Identity Design</h3>
+          <p class="svc__desc">Logos, systems, guidelines and the strategy beneath them — identities built to scale and last.</p>
+          <span class="svc__glow"></span>
+        </li>
+        <li class="svc reveal-fade" data-magnetic-soft>
+          <span class="svc__no">02</span>
+          <h3 class="svc__title">Social Media Creatives</h3>
+          <p class="svc__desc">Scroll-stopping campaigns, templates and content systems tuned for every platform.</p>
+          <span class="svc__glow"></span>
+        </li>
+        <li class="svc reveal-fade" data-magnetic-soft>
+          <span class="svc__no">03</span>
+          <h3 class="svc__title">Packaging Design</h3>
+          <p class="svc__desc">Tactile, shelf-ready packaging that turns a product into an object of desire.</p>
+          <span class="svc__glow"></span>
+        </li>
+        <li class="svc reveal-fade" data-magnetic-soft>
+          <span class="svc__no">04</span>
+          <h3 class="svc__title">Motion Graphics</h3>
+          <p class="svc__desc">Title sequences, brand films and animated stories with cinematic pacing.</p>
+          <span class="svc__glow"></span>
+        </li>
+        <li class="svc reveal-fade" data-magnetic-soft>
+          <span class="svc__no">05</span>
+          <h3 class="svc__title">UI / UX Design</h3>
+          <p class="svc__desc">Interfaces and product experiences that are as intuitive as they are beautiful.</p>
+          <span class="svc__glow"></span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ===== TESTIMONIALS ===== -->
+    <section class="voices" id="voices">
+      <div class="section-head reveal-fade">
+        <span class="section-head__index">04</span>
+        <h2 class="section-head__title">Kind <em>Words</em></h2>
+      </div>
+
+      <div class="voices__grid">
+        <figure class="voice reveal-fade">
+          <blockquote>"Bobby brought Benny's to life with a brand identity that is nostalgic yet fresh. The vinyl record logo was an absolute hit."</blockquote>
+          <figcaption><span class="voice__avatar">B</span><span><b>Benny Wilson</b><i>Owner, Benny's Jazz Club</i></span></figcaption>
+        </figure>
+        <figure class="voice reveal-fade">
+          <blockquote>"For Vaani's luxury clothing line, we needed minimalism that felt upscale and premium. Bobby delivered exactly that."</blockquote>
+          <figcaption><span class="voice__avatar">V</span><span><b>Vaani Kapoor</b><i>Founder, Vaani Luxury</i></span></figcaption>
+        </figure>
+        <figure class="voice reveal-fade">
+          <blockquote>"The packaging and typography layout for KhaasCup tea was exceptional. The design stands out perfectly on every retail shelf."</blockquote>
+          <figcaption><span class="voice__avatar">K</span><span><b>Karan Singh</b><i>Product Manager, KhaasCup</i></span></figcaption>
+        </figure>
+        <figure class="voice reveal-fade">
+          <blockquote>"His motion graphics work for our promo campaign was smooth, professional, and timed to perfection."</blockquote>
+          <figcaption><span class="voice__avatar">R</span><span><b>Rohan Malhotra</b><i>Creative Director, MAAC Studios</i></span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section class="contact" id="contact">
+      <div class="contact__inner">
+        <span class="section-head__index reveal-fade">05</span>
+        <h2 class="contact__title">
+          <span class="reveal-mask"><span>Let's build</span></span>
+          <span class="reveal-mask"><span>something <em>unforgettable</em></span></span>
+        </h2>
+
+        <form class="form" id="contactForm" novalidate>
+          <div class="form__row">
+            <div class="field">
+              <input type="text" id="name" name="name" required placeholder=" " />
+              <label for="name">Your name</label>
+            </div>
+            <div class="field">
+              <input type="email" id="email" name="email" required placeholder=" " />
+              <label for="email">Email address</label>
+            </div>
+          </div>
+          <div class="field">
+            <input type="text" id="subject" name="subject" placeholder=" " />
+            <label for="subject">Project type</label>
+          </div>
+          <div class="field">
+            <textarea id="message" name="message" rows="4" required placeholder=" "></textarea>
+            <label for="message">Tell me about your project</label>
+          </div>
+          <button type="submit" class="btn btn--primary btn--full" data-magnetic>
+            <span>Send message</span>
+          </button>
+          <p class="form__status" id="formStatus" role="status"></p>
+        </form>
+      </div>
+
+      <footer class="footer">
+        <div class="footer__top">
+          <a href="mailto:bobbychadhaa23@gmail.com" class="footer__mail" data-magnetic>bobbychadhaa23@gmail.com</a>
+          <div class="footer__socials">
+            <a href="https://www.behance.net/gallery/233480779/Jazz-Club-Brand-Identity-Design" target="_blank" data-magnetic-soft aria-label="Behance">Behance</a>
+            <a href="#" data-magnetic-soft aria-label="Instagram">Instagram</a>
+            <a href="#" data-magnetic-soft aria-label="LinkedIn">LinkedIn</a>
+          </div>
+        </div>
+        <div class="footer__bottom">
+          <span>© 2026 Bobby Chadha. All rights reserved.</span>
+          <button class="footer__totop" id="toTop" data-magnetic>Back to top ↑</button>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
