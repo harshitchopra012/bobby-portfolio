@@ -449,7 +449,7 @@
         const driveId = getGoogleDriveId(p.image);
         if (driveId) {
           const directUrl = `https://drive.google.com/uc?export=download&id=${driveId}`;
-          artContent = `<video src="${directUrl}" autoplay loop muted playsinline style="width:100%; height:${p.h}px; object-fit:cover; display:block;"></video>`;
+          artContent = `<video src="${directUrl}" autoplay loop muted playsinline style="width:100%; height:${p.h}px; object-fit:cover; display:block;" onerror="this.onerror=null; const iframe=document.createElement('iframe'); iframe.src='https://drive.google.com/file/d/${driveId}/preview'; iframe.style.cssText=this.style.cssText; iframe.style.border='none'; iframe.style.pointerEvents='none'; this.replaceWith(iframe);"></video>`;
         } else {
           const isVideo = p.image.toLowerCase().endsWith(".mp4") || p.image.toLowerCase().endsWith(".webm") || p.image.includes("video/");
           if (isVideo) {
@@ -508,10 +508,10 @@
       const driveId = getGoogleDriveId(p.image);
       if (driveId) {
         const directUrl = `https://drive.google.com/uc?export=download&id=${driveId}`;
-        heroMediaHtml = `<video src="${directUrl}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; display:block;"></video>`;
+        heroMediaHtml = `<video src="${directUrl}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.onerror=null; const iframe=document.createElement('iframe'); iframe.src='https://drive.google.com/file/d/${driveId}/preview'; iframe.style.cssText=this.style.cssText; iframe.style.border='none'; this.replaceWith(iframe);"></video>`;
         showcaseMediaHtml = `
           <div class="project-page__showcase-item">
-            <video src="${directUrl}" controls autoplay loop muted playsinline style="width:100%; max-height:800px; display:block; margin:0 auto;"></video>
+            <video src="${directUrl}" controls autoplay loop muted playsinline style="width:100%; max-height:800px; display:block; margin:0 auto;" onerror="this.onerror=null; const iframe=document.createElement('iframe'); iframe.src='https://drive.google.com/file/d/${driveId}/preview'; iframe.style.cssText=this.style.cssText; iframe.style.border='none'; this.replaceWith(iframe);"></video>
           </div>
         `;
       } else {
@@ -1000,7 +1000,7 @@
           },
           (error) => {
             console.error("Storage upload error:", error);
-            alert("Upload failed: " + error.message);
+            alert("Upload failed: " + error.message + "\n\nTip: If this is a permission error, make sure your Firebase Storage Rules in the Firebase Console allow public uploads (allow read, write: if true;), or use the Local File method (placing the file in the project folder and typing its name).");
             uploadBtn.disabled = false;
             uploadProgress.style.display = "none";
             $("#uploadBtn span", db).textContent = "Choose Project Media";
