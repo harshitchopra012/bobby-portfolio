@@ -514,6 +514,7 @@
       </div>
     `;
     document.body.appendChild(modal);
+    document.body.classList.add("admin-active");
 
     setTimeout(() => modal.classList.add("is-active"), 50);
 
@@ -550,7 +551,12 @@
 
   function closeModal(el) {
     el.classList.remove("is-active");
-    setTimeout(() => el.remove(), 400);
+    setTimeout(() => {
+      el.remove();
+      if (!$("#adminDb")) {
+        document.body.classList.remove("admin-active");
+      }
+    }, 400);
   }
 
   let editingProjectIndex = -1;
@@ -628,6 +634,7 @@
       </div>
     `;
     document.body.appendChild(db);
+    document.body.classList.add("admin-active");
     document.body.style.overflow = "hidden";
 
     setTimeout(() => db.classList.add("is-active"), 50);
@@ -689,6 +696,7 @@
     closeBtn.addEventListener("click", () => {
       db.classList.remove("is-active");
       document.body.style.overflow = "";
+      document.body.classList.remove("admin-active");
       setTimeout(() => db.remove(), 400);
     });
 

@@ -720,3 +720,18 @@ section { position: relative; z-index: 1; }
   margin-top: 16px;
 }
 
+/* Fix cursor visibility when admin panel is active */
+body.admin-active {
+  cursor: auto !important;
+}
+body.admin-active,
+body.admin-active * {
+  cursor: auto !important;
+}
+body.admin-active #cursor,
+body.admin-active #cursorDot {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
