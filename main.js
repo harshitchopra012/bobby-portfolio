@@ -269,21 +269,6 @@
   });
 
   /* ----------------------------------------------------
-     SKILL BARS
-  ---------------------------------------------------- */
-  $$(".skill").forEach((el) => {
-    const fill = $("i", el);
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        requestAnimationFrame(() => (fill.style.width = el.dataset.skill + "%"));
-        io.disconnect();
-      });
-    }, { threshold: 0.5 });
-    io.observe(el);
-  });
-
-  /* ----------------------------------------------------
      HERO PARALLAX
   ---------------------------------------------------- */
   if (!reduceMotion) {
