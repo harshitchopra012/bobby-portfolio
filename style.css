@@ -1064,18 +1064,29 @@ body.admin-active #cursorDot {
 }
 
 .project-page__showcase-item {
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--line);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  background: #000;
 }
 
 .project-page__showcase-item img,
 .project-page__showcase-item video {
-  width: 100%;
-  height: auto;
   display: block;
+  max-width: 100%;
+  max-height: 75vh;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+}
+
+.project-page__showcase-item iframe {
+  display: block;
+  border: none;
 }
 
 
