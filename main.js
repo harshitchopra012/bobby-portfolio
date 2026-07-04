@@ -163,9 +163,77 @@
   }
 
   /* ----------------------------------------------------
+     ABOUT ME SYNCHRONIZATION
+  ---------------------------------------------------- */
+  function applyAboutDetails(data) {
+    if (!data) return;
+    
+    // Update portrait photo
+    const portraitImg = $(".about__portrait img");
+    if (portraitImg && data.portrait) {
+      portraitImg.src = data.portrait;
+    }
+    
+    // Update lead text
+    const aboutLead = $(".about__lead");
+    if (aboutLead && data.leadText) {
+      aboutLead.textContent = data.leadText;
+      // Re-trigger text splitting for animation
+      initSplitText(aboutLead);
+    }
+    
+    // Update body text
+    const aboutBody = $(".about__body");
+    if (aboutBody && data.bodyText) {
+      aboutBody.textContent = data.bodyText;
+    }
+    
+    // Update stats
+    const statsContainer = $(".stats");
+    if (statsContainer) {
+      const statsList = $$(".stat", statsContainer);
+      if (statsList[0]) {
+        const num = $(".stat__num", statsList[0]);
+        const label = $(".stat__label", statsList[0]);
+        if (num && data.expNum !== undefined) {
+          num.dataset.count = data.expNum;
+          num.textContent = data.expNum;
+        }
+        if (label && data.expLabel) label.textContent = data.expLabel;
+      }
+      if (statsList[1]) {
+        const num = $(".stat__num", statsList[1]);
+        const label = $(".stat__label", statsList[1]);
+        if (num && data.projNum !== undefined) {
+          num.dataset.count = data.projNum;
+          num.textContent = data.projNum;
+        }
+        if (label && data.projLabel) label.textContent = data.projLabel;
+      }
+      if (statsList[2]) {
+        const num = $(".stat__num", statsList[2]);
+        const label = $(".stat__label", statsList[2]);
+        if (num && data.stat3Num !== undefined) {
+          num.dataset.count = data.stat3Num;
+          num.textContent = data.stat3Num;
+        }
+        if (label && data.stat3Label) label.textContent = data.stat3Label;
+      }
+    }
+  }
+
+  // Load cached About Me details
+  const cachedAbout = localStorage.getItem("bobby_about");
+  if (cachedAbout) {
+    try {
+      applyAboutDetails(JSON.parse(cachedAbout));
+    } catch(e) {}
+  }
+
+  /* ----------------------------------------------------
      SPLIT TEXT — word-by-word "light up"
   ---------------------------------------------------- */
-  $$("[data-split]").forEach((el) => {
+  function initSplitText(el) {
     const words = el.textContent.trim().split(/\s+/);
     el.innerHTML = words.map((w) => `<span class="word">${w}</span>`).join(" ");
     const spans = $$(".word", el);
@@ -177,7 +245,8 @@
       });
     }, { threshold: 0.4 });
     io.observe(el);
-  });
+  }
+  $$("[data-split]").forEach((el) => initSplitText(el));
 
   /* ----------------------------------------------------
      COUNTERS
@@ -287,6 +356,16 @@
       }
     }, (err) => {
       console.error("Firebase snapshot listen error:", err);
+    });
+
+    firestoreDb.collection("portfolio").doc("about").onSnapshot((doc) => {
+      if (doc.exists) {
+        const aboutData = doc.data();
+        localStorage.setItem("bobby_about", JSON.stringify(aboutData));
+        applyAboutDetails(aboutData);
+      }
+    }, (err) => {
+      console.error("Firebase about snapshot listen error:", err);
     });
   }
 
@@ -679,6 +758,60 @@
         <div>
           <h3 class="admin-db__section-title">Active Projects</h3>
           <div class="admin-db__list" id="adminProjList"></div>
+
+          <div class="admin-about-panel" style="margin-top: 40px; border-top: 1px solid var(--line); padding-top: 32px;">
+            <h3 class="admin-db__section-title">Edit About Me</h3>
+            
+            <div class="admin-modal__group">
+              <label class="admin-modal__label">Portrait Photo</label>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <input type="file" id="aboutFile" accept="image/*" style="display: none;" />
+                  <button class="btn btn--ghost" id="uploadAboutBtn" style="padding: 10px 16px; font-size: 0.85rem; flex: 1;"><span>Choose New Portrait</span></button>
+                </div>
+                <div id="uploadAboutProgress" style="display: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 4px;">
+                  <div id="uploadAboutProgressBar" style="width: 0%; height: 100%; background: var(--purple); transition: width 0.2s;"></div>
+                </div>
+                <input type="text" class="admin-modal__input" id="aboutImageUrl" placeholder="Or paste image URL directly" />
+              </div>
+            </div>
+
+            <div class="admin-modal__group">
+              <label class="admin-modal__label">Lead Introduction</label>
+              <textarea class="admin-modal__input" id="aboutLeadInput" placeholder="I'm Bobby — a designer obsessed..." style="min-height: 80px; resize: vertical; padding: 12px;"></textarea>
+            </div>
+
+            <div class="admin-modal__group">
+              <label class="admin-modal__label">Detailed Bio</label>
+              <textarea class="admin-modal__input" id="aboutBodyInput" placeholder="My work lives at the intersection..." style="min-height: 120px; resize: vertical; padding: 12px;"></textarea>
+            </div>
+
+            <div class="admin-modal__group">
+              <label class="admin-modal__label">Stat 1: Experience</label>
+              <div style="display: grid; grid-template-columns: 80px 1fr; gap: 10px;">
+                <input type="number" class="admin-modal__input" id="aboutExpNum" placeholder="2" />
+                <input type="text" class="admin-modal__input" id="aboutExpLabel" placeholder="Years of experience" />
+              </div>
+            </div>
+
+            <div class="admin-modal__group">
+              <label class="admin-modal__label">Stat 2: Projects</label>
+              <div style="display: grid; grid-template-columns: 80px 1fr; gap: 10px;">
+                <input type="number" class="admin-modal__input" id="aboutProjNum" placeholder="20" />
+                <input type="text" class="admin-modal__input" id="aboutProjLabel" placeholder="Projects delivered" />
+              </div>
+            </div>
+
+            <div class="admin-modal__group">
+              <label class="admin-modal__label">Stat 3: Craft</label>
+              <div style="display: grid; grid-template-columns: 80px 1fr; gap: 10px;">
+                <input type="number" class="admin-modal__input" id="aboutStat3Num" placeholder="100" />
+                <input type="text" class="admin-modal__input" id="aboutStat3Label" placeholder="Obsessive craft" />
+              </div>
+            </div>
+
+            <button class="btn btn--primary" id="saveAboutBtn" style="width: 100%; margin-top: 10px;"><span>Save About Details</span></button>
+          </div>
         </div>
         <div class="admin-form-panel">
           <h3 class="admin-db__section-title" id="formPanelTitle">Add New Project</h3>
@@ -692,7 +825,7 @@
               <option value="branding">Branding</option>
               <option value="social">Social Media</option>
               <option value="posters">Posters</option>
-              <option value="ui">UI Design</option>
+              <option value="ui">Web Design</option>
               <option value="motion">Motion Graphics</option>
             </select>
           </div>
@@ -810,6 +943,106 @@
     const saveProjBtn = $("#saveProjBtn", db);
     saveProjBtn.addEventListener("click", saveProject);
 
+    // Populate About Me fields
+    const cachedAboutData = localStorage.getItem("bobby_about");
+    let currentAbout = {};
+    if (cachedAboutData) {
+      try { currentAbout = JSON.parse(cachedAboutData); } catch(e) {}
+    }
+
+    $("#aboutImageUrl", db).value = currentAbout.portrait || $(".about__portrait img")?.getAttribute("src") || "";
+    $("#aboutLeadInput", db).value = currentAbout.leadText || $(".about__lead")?.textContent.trim() || "";
+    $("#aboutBodyInput", db).value = currentAbout.bodyText || $(".about__body")?.textContent.trim() || "";
+    
+    const statsList = $$(".stat", $(".stats"));
+    $("#aboutExpNum", db).value = currentAbout.expNum !== undefined ? currentAbout.expNum : ($(".stat__num", statsList[0])?.dataset.count || "2");
+    $("#aboutExpLabel", db).value = currentAbout.expLabel || ($(".stat__label", statsList[0])?.textContent.trim() || "Years of experience");
+    
+    $("#aboutProjNum", db).value = currentAbout.projNum !== undefined ? currentAbout.projNum : ($(".stat__num", statsList[1])?.dataset.count || "20");
+    $("#aboutProjLabel", db).value = currentAbout.projLabel || ($(".stat__label", statsList[1])?.textContent.trim() || "Projects delivered");
+    
+    $("#aboutStat3Num", db).value = currentAbout.stat3Num !== undefined ? currentAbout.stat3Num : ($(".stat__num", statsList[2])?.dataset.count || "100");
+    $("#aboutStat3Label", db).value = currentAbout.stat3Label || ($(".stat__label", statsList[2])?.textContent.trim() || "Obsessive craft");
+
+    // Hook up About Me listeners
+    const aboutFile = $("#aboutFile", db);
+    const uploadAboutBtn = $("#uploadAboutBtn", db);
+    const uploadAboutProgress = $("#uploadAboutProgress", db);
+    const uploadAboutProgressBar = $("#uploadAboutProgressBar", db);
+    const aboutImageUrl = $("#aboutImageUrl", db);
+
+    uploadAboutBtn.addEventListener("click", () => aboutFile.click());
+
+    aboutFile.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      uploadAboutBtn.disabled = true;
+      $("#uploadAboutBtn span", db).textContent = "Processing Image...";
+      uploadAboutProgress.style.display = "block";
+      uploadAboutProgressBar.style.width = "40%";
+
+      compressAndConvertToBase64(file, 1200, 1200, 0.85, (base64Url) => {
+        aboutImageUrl.value = base64Url;
+        uploadAboutProgressBar.style.width = "100%";
+        uploadAboutBtn.disabled = false;
+        $("#uploadAboutBtn span", db).textContent = "Loaded!";
+        setTimeout(() => {
+          uploadAboutProgress.style.display = "none";
+          $("#uploadAboutBtn span", db).textContent = "Choose New Portrait";
+        }, 1500);
+      });
+    });
+
+    const saveAboutBtn = $("#saveAboutBtn", db);
+    saveAboutBtn.addEventListener("click", () => {
+      const portrait = $("#aboutImageUrl", db).value.trim();
+      const leadText = $("#aboutLeadInput", db).value.trim();
+      const bodyText = $("#aboutBodyInput", db).value.trim();
+      const expNum = parseInt($("#aboutExpNum", db).value) || 0;
+      const expLabel = $("#aboutExpLabel", db).value.trim();
+      const projNum = parseInt($("#aboutProjNum", db).value) || 0;
+      const projLabel = $("#aboutProjLabel", db).value.trim();
+      const stat3Num = parseInt($("#aboutStat3Num", db).value) || 0;
+      const stat3Label = $("#aboutStat3Label", db).value.trim();
+
+      const aboutData = {
+        portrait,
+        leadText,
+        bodyText,
+        expNum,
+        expLabel,
+        projNum,
+        projLabel,
+        stat3Num,
+        stat3Label
+      };
+
+      if (window.firebase && firestoreDb) {
+        saveAboutBtn.disabled = true;
+        $("#saveAboutBtn span", db).textContent = "Saving...";
+        firestoreDb.collection("portfolio").doc("about").set(aboutData)
+          .then(() => {
+            console.log("Firestore About Me updated successfully");
+            $("#saveAboutBtn span", db).textContent = "Saved!";
+            setTimeout(() => {
+              saveAboutBtn.disabled = false;
+              $("#saveAboutBtn span", db).textContent = "Save About Details";
+            }, 1500);
+          })
+          .catch((err) => {
+            console.error("Firestore About Me update error:", err);
+            alert("Error saving: " + err.message);
+            saveAboutBtn.disabled = false;
+            $("#saveAboutBtn span", db).textContent = "Save About Details";
+          });
+      } else {
+        localStorage.setItem("bobby_about", JSON.stringify(aboutData));
+        applyAboutDetails(aboutData);
+        alert("Saved locally! (Firebase not active)");
+      }
+    });
+
     renderAdminItems();
     updateCodeExport();
 
@@ -908,7 +1141,7 @@
         branding: "Branding",
         social: "Social Media",
         posters: "Poster",
-        ui: "UI Design",
+        ui: "Web Design",
         motion: "Motion Graphics"
       };
 
