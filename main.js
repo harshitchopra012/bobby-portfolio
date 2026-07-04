@@ -232,20 +232,7 @@
   /* ----------------------------------------------------
      PORTFOLIO — data + procedural artwork
   ---------------------------------------------------- */
-  const defaultProjects = [
-    { title: "Benny's — Jazz Club Identity", cat: "branding", catLabel: "Branding & Logo", h: 420, c: ["#ec0909", "#151109"] },
-    { title: "KhaasCup — Indian Tea Branding", cat: "branding", catLabel: "Branding", h: 300, c: ["#ff5e36", "#b3001e"] },
-    { title: "Vaani — Luxury Clothing Identity", cat: "branding", catLabel: "Branding", h: 480, c: ["#b3001e", "#a6a5a6"] },
-    { title: "Benny's — Album Cover", cat: "posters", catLabel: "Album Art", h: 320, c: ["#ff1a2b", "#260005"] },
-    { title: "KhaasCup — Campaign Reels", cat: "social", catLabel: "Social Media", h: 360, c: ["#ff8a93", "#e0d6d6"] },
-    { title: "Vaani — Brand Book Layout", cat: "posters", catLabel: "Layout Design", h: 340, c: ["#a6a5a6", "#ec0909"] },
-    { title: "Midnight Groove — Motion Poster", cat: "motion", catLabel: "Motion Graphics", h: 300, c: ["#ff2a3a", "#4a000b"] },
-    { title: "Benny's — Mobile App Concept", cat: "ui", catLabel: "UI Design", h: 440, c: ["#ec0909", "#151109"] },
-    { title: "Vaani — Digital Lookbook UI", cat: "ui", catLabel: "UI Design", h: 380, c: ["#e0d6d6", "#9e0018"] },
-    { title: "KhaasCup — Tea Packaging Design", cat: "branding", catLabel: "Packaging", h: 320, c: ["#ff5e36", "#ff1a2b"] },
-    { title: "Benny's — Street Ads Series", cat: "posters", catLabel: "Poster Design", h: 300, c: ["#9e0018", "#ec0909"] },
-    { title: "MAAC — Kinetic Typography Reel", cat: "motion", catLabel: "Motion Graphics", h: 360, c: ["#ff4d5a", "#260005"] },
-  ];
+  const defaultProjects = [];
 
   let projects = [...defaultProjects];
 
@@ -288,7 +275,7 @@
     db.collection("portfolio").doc("projects").onSnapshot((doc) => {
       if (doc.exists) {
         const list = doc.data().list;
-        if (Array.isArray(list) && list.length > 0) {
+        if (Array.isArray(list)) {
           projects = list;
           localStorage.setItem("bobby_projects", JSON.stringify(projects));
           renderGrid();
