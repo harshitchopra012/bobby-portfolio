@@ -376,6 +376,83 @@ section { position: relative; z-index: 1; }
 .stat__plus { font-size: clamp(1.6rem,3vw,2.4rem); }
 .stat__label { margin-top: 12px; color: var(--muted); font-size: .9rem; max-width: 140px; }
 
+.about__tools {
+  margin-top: 40px;
+}
+.tools__title {
+  font-family: var(--display);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--faint);
+  margin-bottom: 18px;
+}
+.tools__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.tool-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 10px 18px;
+  transition: transform 0.4s var(--ease), border-color 0.4s, background 0.4s, box-shadow 0.4s;
+  will-change: transform;
+}
+.tool-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tool-card__icon svg {
+  display: block;
+  border-radius: 4px;
+  transition: transform 0.4s var(--ease);
+}
+.tool-card__name {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--muted);
+  transition: color 0.4s;
+}
+
+/* Hover effects with brand custom colors */
+.tool-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.tool-card:hover .tool-card__name {
+  color: #fff;
+}
+.tool-card:hover .tool-card__icon svg {
+  transform: scale(1.1);
+}
+
+.tool-card--ps:hover {
+  border-color: rgba(0, 200, 255, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 200, 255, 0.08);
+}
+.tool-card--ae:hover {
+  border-color: rgba(207, 150, 253, 0.35);
+  box-shadow: 0 10px 30px rgba(207, 150, 253, 0.08);
+}
+.tool-card--pr:hover {
+  border-color: rgba(234, 119, 255, 0.35);
+  box-shadow: 0 10px 30px rgba(234, 119, 255, 0.08);
+}
+.tool-card--ai:hover {
+  border-color: rgba(255, 154, 0, 0.35);
+  box-shadow: 0 10px 30px rgba(255, 154, 0, 0.08);
+}
+.tool-card--id:hover {
+  border-color: rgba(255, 51, 102, 0.35);
+  box-shadow: 0 10px 30px rgba(255, 51, 102, 0.08);
+}
+
+
 /* =========================================================
    SERVICES
    ========================================================= */
