@@ -282,27 +282,28 @@
     console.error("Firebase init error:", e);
   }
 
-  // Fetch from Firebase Firestore in the background
+  // Fetch from Firebase Firestore in real-time
   function syncWithFirebase() {
     if (!db) return;
-    db.collection("portfolio").doc("projects").get()
-      .then((doc) => {
-        if (doc.exists) {
-          const list = doc.data().list;
-          if (Array.isArray(list) && list.length > 0) {
-            projects = list;
-            localStorage.setItem("bobby_projects", JSON.stringify(projects));
-            renderGrid();
+    db.collection("portfolio").doc("projects").onSnapshot((doc) => {
+      if (doc.exists) {
+        const list = doc.data().list;
+        if (Array.isArray(list) && list.length > 0) {
+          projects = list;
+          localStorage.setItem("bobby_projects", JSON.stringify(projects));
+          renderGrid();
+          if (typeof window.updateAdminItemsCallback === "function") {
+            window.updateAdminItemsCallback();
           }
-        } else {
-          // If no projects in DB yet, initialize Firestore with our defaults
-          db.collection("portfolio").doc("projects").set({ list: defaultProjects })
-            .catch(err => console.error("Firebase initial set error:", err));
         }
-      })
-      .catch((err) => {
-        console.error("Firebase get error:", err);
-      });
+      } else {
+        // If no projects in DB yet, initialize Firestore with our defaults
+        db.collection("portfolio").doc("projects").set({ list: defaultProjects })
+          .catch(err => console.error("Firebase initial set error:", err));
+      }
+    }, (err) => {
+      console.error("Firebase snapshot listen error:", err);
+    });
   }
 
   syncWithFirebase();
@@ -601,11 +602,11 @@
             <input type="number" class="admin-modal__input" id="projHeight" value="360" min="200" max="600" />
           </div>
           <div class="admin-modal__group">
-            <label class="admin-modal__label">Project Image / Video</label>
+            <label class="admin-modal__label">Project Image</label>
             <div style="display: flex; flex-direction: column; gap: 8px;">
               <div style="display: flex; gap: 8px; align-items: center;">
-                <input type="file" id="projFile" accept="image/*,video/*" style="display: none;" />
-                <button class="btn btn--ghost" id="uploadBtn" style="padding: 10px 16px; font-size: 0.85rem; flex: 1;"><span>Upload Image / Video</span></button>
+                <input type="file" id="projFile" accept="image/*" style="display: none;" />
+                <button class="btn btn--ghost" id="uploadBtn" style="padding: 10px 16px; font-size: 0.85rem; flex: 1;"><span>Choose Project Image</span></button>
               </div>
               <div id="uploadProgress" style="display: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 4px;">
                 <div id="uploadProgressBar" style="width: 0%; height: 100%; background: var(--purple); transition: width 0.2s;"></div>
@@ -651,45 +652,27 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      if (!storage) {
-        alert("Firebase Storage is not initialized/accessible. Check your Firebase config or rules.");
+      if (file.type.startsWith("video/")) {
+        alert("Videos cannot be stored directly in the database due to size limits. Please upload an image instead, or paste a video link (e.g. from YouTube, Vimeo, or a public CDN) directly into the URL field.");
+        projFile.value = "";
         return;
       }
 
       uploadBtn.disabled = true;
-      $("#uploadBtn span", db).textContent = "Uploading...";
+      $("#uploadBtn span", db).textContent = "Processing Image...";
       uploadProgress.style.display = "block";
-      uploadProgressBar.style.width = "0%";
+      uploadProgressBar.style.width = "40%";
 
-      const filename = `${Date.now()}_${file.name}`;
-      const ref = storage.ref().child(`portfolio/${filename}`);
-      const uploadTask = ref.put(file);
-
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-          uploadProgressBar.style.width = pct + "%";
-        },
-        (err) => {
-          console.error("Upload failed:", err);
-          alert("Upload failed: " + err.message);
-          uploadBtn.disabled = false;
-          $("#uploadBtn span", db).textContent = "Upload Image / Video";
+      compressAndConvertToBase64(file, 700, 700, 0.65, (base64Url) => {
+        projImageUrl.value = base64Url;
+        uploadProgressBar.style.width = "100%";
+        uploadBtn.disabled = false;
+        $("#uploadBtn span", db).textContent = "Loaded!";
+        setTimeout(() => {
           uploadProgress.style.display = "none";
-        },
-        () => {
-          uploadTask.snapshot.ref.getDownloadURL().then((url) => {
-            projImageUrl.value = url;
-            uploadBtn.disabled = false;
-            $("#uploadBtn span", db).textContent = "Upload Complete!";
-            uploadProgress.style.display = "none";
-            setTimeout(() => {
-              $("#uploadBtn span", db).textContent = "Upload Image / Video";
-            }, 2500);
-          });
-        }
-      );
+          $("#uploadBtn span", db).textContent = "Choose Project Image";
+        }, 1500);
+      });
     });
 
     const closeBtn = $("#adminDbClose", db);
@@ -697,6 +680,7 @@
       db.classList.remove("is-active");
       document.body.style.overflow = "";
       document.body.classList.remove("admin-active");
+      window.updateAdminItemsCallback = null;
       setTimeout(() => db.remove(), 400);
     });
 
@@ -708,6 +692,11 @@
 
     renderAdminItems();
     updateCodeExport();
+
+    window.updateAdminItemsCallback = () => {
+      renderAdminItems();
+      updateCodeExport();
+    };
 
     function renderAdminItems() {
       const list = $("#adminProjList", db);
@@ -841,5 +830,53 @@
       const str = "  const defaultProjects = " + JSON.stringify(projects, null, 4) + ";";
       box.textContent = str;
     }
+  }
+
+  function compressAndConvertToBase64(file, maxWidth, maxHeight, quality, callback) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onerror = (err) => {
+      console.error("FileReader error:", err);
+      alert("Failed to read file.");
+    };
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onerror = (err) => {
+        console.error("Image load error:", err);
+        callback(event.target.result);
+      };
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
+          callback(compressedDataUrl);
+        } catch (e) {
+          console.error("Canvas draw/export error, falling back to raw data URL:", e);
+          callback(event.target.result);
+        }
+      };
+    };
   }
 })();
