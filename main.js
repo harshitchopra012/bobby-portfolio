@@ -270,10 +270,14 @@
 
   let db;
   let analytics;
+  let storage;
   try {
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     db = firebase.firestore();
     analytics = firebase.analytics();
+    storage = firebase.storage();
   } catch (e) {
     console.error("Firebase init error:", e);
   }
@@ -362,8 +366,19 @@
       card.className = "card";
       card.dataset.cat = p.cat;
       card.style.transitionDelay = (idx % 3) * 0.08 + "s";
+      
+      let artContent = `<canvas></canvas>`;
+      if (p.image) {
+        const isVideo = p.image.toLowerCase().endsWith(".mp4") || p.image.toLowerCase().endsWith(".webm") || p.image.includes("video/");
+        if (isVideo) {
+          artContent = `<video src="${p.image}" autoplay loop muted playsinline style="width:100%; height:${p.h}px; object-fit:cover; display:block;"></video>`;
+        } else {
+          artContent = `<img src="${p.image}" alt="${p.title}" style="width:100%; height:${p.h}px; object-fit:cover; display:block;" />`;
+        }
+      }
+      
       card.innerHTML = `
-        <div class="card__art"><div class="art"><canvas></canvas></div></div>
+        <div class="card__art"><div class="art">${artContent}</div></div>
         <span class="card__view"></span>
         <div class="card__overlay">
           <span class="card__cat">${p.catLabel}</span>
@@ -372,9 +387,11 @@
         <span class="card__border"></span>`;
       grid.appendChild(card);
 
-      const canvas = $("canvas", card);
-      const w = 460;
-      drawArt(canvas, w, p.h, p.c, idx + 1);
+      if (!p.image) {
+        const canvas = $("canvas", card);
+        const w = 460;
+        drawArt(canvas, w, p.h, p.c, idx + 1);
+      }
 
       revealObserver.observe(card);
     });
@@ -578,7 +595,20 @@
             <input type="number" class="admin-modal__input" id="projHeight" value="360" min="200" max="600" />
           </div>
           <div class="admin-modal__group">
-            <label class="admin-modal__label">Colors (Gradient stops)</label>
+            <label class="admin-modal__label">Project Image / Video</label>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="file" id="projFile" accept="image/*,video/*" style="display: none;" />
+                <button class="btn btn--ghost" id="uploadBtn" style="padding: 10px 16px; font-size: 0.85rem; flex: 1;"><span>Upload Image / Video</span></button>
+              </div>
+              <div id="uploadProgress" style="display: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 4px;">
+                <div id="uploadProgressBar" style="width: 0%; height: 100%; background: var(--purple); transition: width 0.2s;"></div>
+              </div>
+              <input type="text" class="admin-modal__input" id="projImageUrl" placeholder="Or paste image/video URL directly" />
+            </div>
+          </div>
+          <div class="admin-modal__group">
+            <label class="admin-modal__label">Fallback Colors (for canvas gradient)</label>
             <div class="admin-form-panel__colors">
               <input type="color" class="admin-modal__input" id="projCol1" value="#ec0909" style="height:45px; padding:2px;" />
               <input type="color" class="admin-modal__input" id="projCol2" value="#151109" style="height:45px; padding:2px;" />
@@ -601,6 +631,59 @@
     document.body.style.overflow = "hidden";
 
     setTimeout(() => db.classList.add("is-active"), 50);
+
+    const projFile = $("#projFile", db);
+    const uploadBtn = $("#uploadBtn", db);
+    const uploadProgress = $("#uploadProgress", db);
+    const uploadProgressBar = $("#uploadProgressBar", db);
+    const projImageUrl = $("#projImageUrl", db);
+
+    uploadBtn.addEventListener("click", () => projFile.click());
+
+    projFile.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!storage) {
+        alert("Firebase Storage is not initialized/accessible. Check your Firebase config or rules.");
+        return;
+      }
+
+      uploadBtn.disabled = true;
+      $("#uploadBtn span", db).textContent = "Uploading...";
+      uploadProgress.style.display = "block";
+      uploadProgressBar.style.width = "0%";
+
+      const filename = `${Date.now()}_${file.name}`;
+      const ref = storage.ref().child(`portfolio/${filename}`);
+      const uploadTask = ref.put(file);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+          uploadProgressBar.style.width = pct + "%";
+        },
+        (err) => {
+          console.error("Upload failed:", err);
+          alert("Upload failed: " + err.message);
+          uploadBtn.disabled = false;
+          $("#uploadBtn span", db).textContent = "Upload Image / Video";
+          uploadProgress.style.display = "none";
+        },
+        () => {
+          uploadTask.snapshot.ref.getDownloadURL().then((url) => {
+            projImageUrl.value = url;
+            uploadBtn.disabled = false;
+            $("#uploadBtn span", db).textContent = "Upload Complete!";
+            uploadProgress.style.display = "none";
+            setTimeout(() => {
+              $("#uploadBtn span", db).textContent = "Upload Image / Video";
+            }, 2500);
+          });
+        }
+      );
+    });
 
     const closeBtn = $("#adminDbClose", db);
     closeBtn.addEventListener("click", () => {
@@ -627,7 +710,7 @@
         item.innerHTML = `
           <div class="admin-item__info">
             <span class="admin-item__title">${p.title}</span>
-            <span class="admin-item__meta">${p.catLabel} | H: ${p.h}px | Colors: ${p.c.join(", ")}</span>
+            <span class="admin-item__meta">${p.catLabel} | H: ${p.h}px | ${p.image ? "🖼️ Media Uploaded" : `Colors: ${p.c.join(", ")}`}</span>
           </div>
           <div class="admin-item__btns">
             <button class="admin-item__btn" data-action="edit" data-idx="${idx}" title="Edit Project">✏️</button>
@@ -659,6 +742,7 @@
       $("#projHeight", db).value = p.h;
       $("#projCol1", db).value = p.c[0] || "#ec0909";
       $("#projCol2", db).value = p.c[1] || "#151109";
+      $("#projImageUrl", db).value = p.image || "";
       $("#saveProjBtn span", db).textContent = "Update Project";
       cancelEditBtn.style.display = "block";
     }
@@ -671,6 +755,8 @@
       $("#projHeight", db).value = "360";
       $("#projCol1", db).value = "#ec0909";
       $("#projCol2", db).value = "#151109";
+      $("#projImageUrl", db).value = "";
+      $("#projFile", db).value = "";
       $("#saveProjBtn span", db).textContent = "Add Project";
       cancelEditBtn.style.display = "none";
     }
@@ -681,6 +767,7 @@
       const h = parseInt($("#projHeight", db).value) || 360;
       const c1 = $("#projCol1", db).value;
       const c2 = $("#projCol2", db).value;
+      const image = $("#projImageUrl", db).value.trim();
 
       if (!title) {
         alert("Please enter a project title.");
@@ -700,7 +787,8 @@
         cat,
         catLabel: catLabels[cat] || "Design",
         h,
-        c: [c1, c2]
+        c: [c1, c2],
+        image: image || ""
       };
 
       if (editingProjectIndex > -1) {
