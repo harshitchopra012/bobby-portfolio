@@ -448,8 +448,8 @@
       if (p.image) {
         const driveId = getGoogleDriveId(p.image);
         if (driveId) {
-          const embedUrl = `https://drive.google.com/file/d/${driveId}/preview?autoplay=1&mute=1&loop=1`;
-          artContent = `<iframe src="${embedUrl}" style="width:100%; height:${p.h}px; border:none; pointer-events:none;" allow="autoplay"></iframe>`;
+          const directUrl = `https://drive.google.com/uc?export=download&id=${driveId}`;
+          artContent = `<video src="${directUrl}" autoplay loop muted playsinline style="width:100%; height:${p.h}px; object-fit:cover; display:block;"></video>`;
         } else {
           const isVideo = p.image.toLowerCase().endsWith(".mp4") || p.image.toLowerCase().endsWith(".webm") || p.image.includes("video/");
           if (isVideo) {
@@ -507,11 +507,11 @@
     if (p.image) {
       const driveId = getGoogleDriveId(p.image);
       if (driveId) {
-        const embedUrl = `https://drive.google.com/file/d/${driveId}/preview?autoplay=1&mute=1&loop=1`;
-        heroMediaHtml = `<iframe src="${embedUrl}" style="width:100%; height:100%; border:none;" allow="autoplay"></iframe>`;
+        const directUrl = `https://drive.google.com/uc?export=download&id=${driveId}`;
+        heroMediaHtml = `<video src="${directUrl}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; display:block;"></video>`;
         showcaseMediaHtml = `
-          <div class="project-page__showcase-item" style="aspect-ratio: 16/9; width:100%; max-width:800px; margin:0 auto;">
-            <iframe src="${embedUrl}" style="width:100%; height:100%; border:none; border-radius:12px;" allow="autoplay; fullscreen"></iframe>
+          <div class="project-page__showcase-item">
+            <video src="${directUrl}" controls autoplay loop muted playsinline style="width:100%; max-height:800px; display:block; margin:0 auto;"></video>
           </div>
         `;
       } else {
