@@ -965,9 +965,66 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      if (file.type.startsWith("video/")) {
+      const isVideo = file.type.startsWith("video/");
+
+      // Aspect Ratio Auto-calculation helper for card height
+      if (isVideo) {
+        const video = document.createElement("video");
+        video.src = URL.createObjectURL(file);
+        video.onloadedmetadata = () => {
+          if (video.videoWidth && video.videoHeight) {
+            const calculatedHeight = Math.round((video.videoHeight / video.videoWidth) * 360);
+            const clampedHeight = Math.max(200, Math.min(600, calculatedHeight));
+            $("#projHeight", db).value = clampedHeight;
+          }
+          URL.revokeObjectURL(video.src);
+        };
+      }
+
+      // Check if Firebase Storage is active
+      if (window.firebase && storage) {
+        uploadBtn.disabled = true;
+        $("#uploadBtn span", db).textContent = "Uploading to Cloud...";
+        uploadProgress.style.display = "block";
+        uploadProgressBar.style.width = "5%";
+
+        const path = `projects/${Date.now()}_${file.name}`;
+        const storageRef = storage.ref().child(path);
+        const uploadTask = storageRef.put(file);
+
+        uploadTask.on("state_changed",
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            uploadProgressBar.style.width = `${Math.max(5, progress)}%`;
+            $("#uploadBtn span", db).textContent = `Uploading (${Math.round(progress)}%)...`;
+          },
+          (error) => {
+            console.error("Storage upload error:", error);
+            alert("Upload failed: " + error.message);
+            uploadBtn.disabled = false;
+            uploadProgress.style.display = "none";
+            $("#uploadBtn span", db).textContent = "Choose Project Media";
+          },
+          () => {
+            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+              projImageUrl.value = downloadURL;
+              uploadProgressBar.style.width = "100%";
+              uploadBtn.disabled = false;
+              $("#uploadBtn span", db).textContent = "Uploaded!";
+              setTimeout(() => {
+                uploadProgress.style.display = "none";
+                $("#uploadBtn span", db).textContent = "Choose Project Media";
+              }, 1500);
+            });
+          }
+        );
+        return;
+      }
+
+      // Offline / Local-only fallback
+      if (isVideo) {
         if (file.size > 1.5 * 1024 * 1024) {
-          alert(`Video file is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Due to database limits, uploaded videos must be under 1.5MB. For larger videos, please upload to a service like Vimeo/YouTube or a CDN and paste the URL.`);
+          alert(`Video file is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Storing videos locally requires files under 1.5MB. Enable Firebase or host online for unlimited size.`);
           projFile.value = "";
           return;
         }
@@ -1005,10 +1062,8 @@
       compressAndConvertToBase64(file, 1200, 1200, 0.85, (base64Url, origW, origH) => {
         projImageUrl.value = base64Url;
 
-        // Auto-calculate height based on aspect ratio (base width 360px)
         if (origW && origH) {
           const calculatedHeight = Math.round((origH / origW) * 360);
-          // Keep the height in a solid portfolio range [200px, 600px]
           const clampedHeight = Math.max(200, Math.min(600, calculatedHeight));
           $("#projHeight", db).value = clampedHeight;
         }
