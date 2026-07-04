@@ -380,6 +380,19 @@
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
 
+  function getGoogleDriveEmbedUrl(url) {
+    if (!url || !url.includes("drive.google.com")) return null;
+    const fileDMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileDMatch && fileDMatch[1]) {
+      return `https://drive.google.com/file/d/${fileDMatch[1]}/preview`;
+    }
+    const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (idMatch && idMatch[1]) {
+      return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+    }
+    return null;
+  }
+
   function drawArt(canvas, w, h, colors, seed) {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = w * dpr; canvas.height = h * dpr;
@@ -437,11 +450,16 @@
       
       let artContent = `<canvas></canvas>`;
       if (p.image) {
-        const isVideo = p.image.toLowerCase().endsWith(".mp4") || p.image.toLowerCase().endsWith(".webm") || p.image.includes("video/");
-        if (isVideo) {
-          artContent = `<video src="${p.image}" autoplay loop muted playsinline style="width:100%; height:${p.h}px; object-fit:cover; display:block;"></video>`;
+        const driveEmbed = getGoogleDriveEmbedUrl(p.image);
+        if (driveEmbed) {
+          artContent = `<iframe src="${driveEmbed}" style="width:100%; height:${p.h}px; border:none; pointer-events:none;" allow="autoplay"></iframe>`;
         } else {
-          artContent = `<img src="${p.image}" alt="${p.title}" style="width:100%; height:${p.h}px; object-fit:cover; display:block;" />`;
+          const isVideo = p.image.toLowerCase().endsWith(".mp4") || p.image.toLowerCase().endsWith(".webm") || p.image.includes("video/");
+          if (isVideo) {
+            artContent = `<video src="${p.image}" autoplay loop muted playsinline style="width:100%; height:${p.h}px; object-fit:cover; display:block;"></video>`;
+          } else {
+            artContent = `<img src="${p.image}" alt="${p.title}" style="width:100%; height:${p.h}px; object-fit:cover; display:block;" />`;
+          }
         }
       }
       
@@ -490,21 +508,31 @@
     let heroMediaHtml = "";
     let showcaseMediaHtml = "";
     if (p.image) {
-      const isVideo = p.image.toLowerCase().endsWith(".mp4") || p.image.toLowerCase().endsWith(".webm") || p.image.includes("video/");
-      if (isVideo) {
-        heroMediaHtml = `<video src="${p.image}" autoplay loop muted playsinline></video>`;
+      const driveEmbed = getGoogleDriveEmbedUrl(p.image);
+      if (driveEmbed) {
+        heroMediaHtml = `<iframe src="${driveEmbed}" style="width:100%; height:100%; border:none;" allow="autoplay"></iframe>`;
         showcaseMediaHtml = `
-          <div class="project-page__showcase-item">
-            <video src="${p.image}" controls autoplay loop muted playsinline></video>
+          <div class="project-page__showcase-item" style="aspect-ratio: 16/9; width:100%; max-width:800px; margin:0 auto;">
+            <iframe src="${driveEmbed}" style="width:100%; height:100%; border:none; border-radius:12px;" allow="autoplay; fullscreen"></iframe>
           </div>
         `;
       } else {
-        heroMediaHtml = `<img src="${p.image}" alt="${p.title}" />`;
-        showcaseMediaHtml = `
-          <div class="project-page__showcase-item">
-            <img src="${p.image}" alt="${p.title}" />
-          </div>
-        `;
+        const isVideo = p.image.toLowerCase().endsWith(".mp4") || p.image.toLowerCase().endsWith(".webm") || p.image.includes("video/");
+        if (isVideo) {
+          heroMediaHtml = `<video src="${p.image}" autoplay loop muted playsinline></video>`;
+          showcaseMediaHtml = `
+            <div class="project-page__showcase-item">
+              <video src="${p.image}" controls autoplay loop muted playsinline></video>
+            </div>
+          `;
+        } else {
+          heroMediaHtml = `<img src="${p.image}" alt="${p.title}" />`;
+          showcaseMediaHtml = `
+            <div class="project-page__showcase-item">
+              <img src="${p.image}" alt="${p.title}" />
+            </div>
+          `;
+        }
       }
     } else {
       heroMediaHtml = `<canvas id="projectPageCanvas" style="width: 100%; height: 100%;"></canvas>`;

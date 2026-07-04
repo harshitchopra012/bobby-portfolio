@@ -960,7 +960,8 @@ body.admin-active #cursorDot {
 }
 
 .project-page__hero-media img,
-.project-page__hero-media video {
+.project-page__hero-media video,
+.project-page__hero-media iframe {
   width: 100%;
   height: 100%;
   object-fit: cover;
