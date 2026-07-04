@@ -650,8 +650,17 @@
       uploadProgress.style.display = "block";
       uploadProgressBar.style.width = "40%";
 
-      compressAndConvertToBase64(file, 700, 700, 0.65, (base64Url) => {
+      compressAndConvertToBase64(file, 700, 700, 0.65, (base64Url, origW, origH) => {
         projImageUrl.value = base64Url;
+
+        // Auto-calculate height based on aspect ratio (base width 360px)
+        if (origW && origH) {
+          const calculatedHeight = Math.round((origH / origW) * 360);
+          // Keep the height in a solid portfolio range [200px, 600px]
+          const clampedHeight = Math.max(200, Math.min(600, calculatedHeight));
+          $("#projHeight", db).value = clampedHeight;
+        }
+
         uploadProgressBar.style.width = "100%";
         uploadBtn.disabled = false;
         $("#uploadBtn span", db).textContent = "Loaded!";
@@ -831,13 +840,15 @@
       img.src = event.target.result;
       img.onerror = (err) => {
         console.error("Image load error:", err);
-        callback(event.target.result);
+        callback(event.target.result, null, null);
       };
       img.onload = () => {
         try {
           const canvas = document.createElement("canvas");
           let width = img.width;
           let height = img.height;
+          const origW = img.width;
+          const origH = img.height;
 
           if (width > height) {
             if (width > maxWidth) {
@@ -858,10 +869,10 @@
           ctx.drawImage(img, 0, 0, width, height);
 
           const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
-          callback(compressedDataUrl);
+          callback(compressedDataUrl, origW, origH);
         } catch (e) {
           console.error("Canvas draw/export error, falling back to raw data URL:", e);
-          callback(event.target.result);
+          callback(event.target.result, img.width, img.height);
         }
       };
     };
