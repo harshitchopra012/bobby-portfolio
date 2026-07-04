@@ -380,16 +380,12 @@
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
 
-  function getGoogleDriveEmbedUrl(url) {
+  function getGoogleDriveId(url) {
     if (!url || !url.includes("drive.google.com")) return null;
     const fileDMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-    if (fileDMatch && fileDMatch[1]) {
-      return `https://drive.google.com/file/d/${fileDMatch[1]}/preview`;
-    }
+    if (fileDMatch && fileDMatch[1]) return fileDMatch[1];
     const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-    if (idMatch && idMatch[1]) {
-      return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
-    }
+    if (idMatch && idMatch[1]) return idMatch[1];
     return null;
   }
 
@@ -450,9 +446,10 @@
       
       let artContent = `<canvas></canvas>`;
       if (p.image) {
-        const driveEmbed = getGoogleDriveEmbedUrl(p.image);
-        if (driveEmbed) {
-          artContent = `<iframe src="${driveEmbed}" style="width:100%; height:${p.h}px; border:none; pointer-events:none;" allow="autoplay"></iframe>`;
+        const driveId = getGoogleDriveId(p.image);
+        if (driveId) {
+          const directUrl = `https://drive.google.com/uc?export=download&id=${driveId}`;
+          artContent = `<video src="${directUrl}" autoplay loop muted playsinline style="width:100%; height:${p.h}px; object-fit:cover; display:block;" onerror="this.onerror=null; const img=document.createElement('img'); img.src='${directUrl}'; img.alt='${p.title}'; img.style.cssText=this.style.cssText; this.replaceWith(img);"></video>`;
         } else {
           const isVideo = p.image.toLowerCase().endsWith(".mp4") || p.image.toLowerCase().endsWith(".webm") || p.image.includes("video/");
           if (isVideo) {
@@ -508,12 +505,13 @@
     let heroMediaHtml = "";
     let showcaseMediaHtml = "";
     if (p.image) {
-      const driveEmbed = getGoogleDriveEmbedUrl(p.image);
-      if (driveEmbed) {
-        heroMediaHtml = `<iframe src="${driveEmbed}" style="width:100%; height:100%; border:none;" allow="autoplay"></iframe>`;
+      const driveId = getGoogleDriveId(p.image);
+      if (driveId) {
+        const directUrl = `https://drive.google.com/uc?export=download&id=${driveId}`;
+        heroMediaHtml = `<video src="${directUrl}" autoplay loop muted playsinline onerror="this.onerror=null; const img=document.createElement('img'); img.src='${directUrl}'; img.alt='${p.title}'; this.replaceWith(img);"></video>`;
         showcaseMediaHtml = `
-          <div class="project-page__showcase-item" style="aspect-ratio: 16/9; width:100%; max-width:800px; margin:0 auto;">
-            <iframe src="${driveEmbed}" style="width:100%; height:100%; border:none; border-radius:12px;" allow="autoplay; fullscreen"></iframe>
+          <div class="project-page__showcase-item">
+            <video src="${directUrl}" controls autoplay loop muted playsinline onerror="this.onerror=null; const img=document.createElement('img'); img.src='${directUrl}'; img.alt='${p.title}'; this.replaceWith(img);"></video>
           </div>
         `;
       } else {
