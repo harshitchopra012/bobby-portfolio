@@ -268,9 +268,9 @@ body::before {
    ========================================================= */
 section { position: relative; z-index: 1; }
 .intro, .work, .about, .services, .voices, .contact {
-  max-width: var(--container); margin: 0 auto; padding: clamp(80px, 12vh, 160px) clamp(20px, 5vw, 64px);
+  max-width: var(--container); margin: 0 auto; padding: clamp(50px, 8vh, 90px) clamp(20px, 5vw, 64px);
 }
-.section-head { margin-bottom: clamp(40px, 6vw, 72px); }
+.section-head { margin-bottom: clamp(24px, 4vw, 44px); }
 .section-head__index { display: inline-block; font-family: var(--display); font-size: .85rem; color: var(--purple); letter-spacing: .2em; margin-bottom: 14px; }
 .section-head__title { font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 6vw, 4.6rem); line-height: 1; letter-spacing: -.02em; }
 .section-head__sub { margin-top: 18px; color: var(--muted); max-width: 420px; }
@@ -289,7 +289,7 @@ section { position: relative; z-index: 1; }
 /* =========================================================
    WORK / GRID
    ========================================================= */
-.filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 44px; }
+.filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
 .filter {
   padding: 10px 22px; border-radius: 100px; border: 1px solid var(--line);
   color: var(--muted); font-size: .9rem; background: var(--surface);
@@ -372,7 +372,7 @@ section { position: relative; z-index: 1; }
 .about__lead .word.is-lit { opacity: 1; }
 .about__body { color: var(--muted); max-width: 520px; }
 
-.stats { display: flex; flex-wrap: wrap; gap: clamp(24px, 4vw, 56px); margin-top: 48px; }
+.stats { display: flex; flex-wrap: wrap; gap: clamp(20px, 3vw, 40px); margin-top: 32px; }
 .stat { display: flex; flex-direction: column; }
 .stat__num, .stat__plus { font-family: var(--display); font-weight: 800; font-size: clamp(2.4rem, 5vw, 3.6rem); line-height: 1; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline; }
 .stat__plus { font-size: clamp(1.6rem,3vw,2.4rem); }
@@ -390,7 +390,7 @@ section { position: relative; z-index: 1; }
 .svc-list { list-style: none; }
 .svc {
   position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: clamp(18px,4vw,60px);
-  padding: clamp(28px, 4vw, 48px) 8px; border-top: 1px solid var(--line); overflow: hidden;
+  padding: clamp(18px, 2.5vw, 28px) 8px; border-top: 1px solid var(--line); overflow: hidden;
   transition: padding-left .5s var(--ease);
 }
 .svc:last-child { border-bottom: 1px solid var(--line); }
@@ -420,7 +420,7 @@ section { position: relative; z-index: 1; }
 }
 .voice::before { content: "“"; position: absolute; top: 6px; right: 26px; font-family: var(--display); font-size: 7rem; line-height: 1; color: rgba(154,92,255,.16); }
 .voice:hover { transform: translateY(-6px); border-color: rgba(154,92,255,.35); box-shadow: 0 30px 70px -30px var(--glow-purple); }
-.voice blockquote { font-size: clamp(1.05rem, 1.6vw, 1.25rem); line-height: 1.5; margin-bottom: 28px; }
+.voice blockquote { font-size: clamp(1.05rem, 1.6vw, 1.25rem); line-height: 1.5; margin-bottom: 20px; }
 .voice figcaption { display: flex; align-items: center; gap: 14px; }
 .voice__avatar { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 700; background: var(--grad); color: #fff; flex-shrink: 0; }
 .voice figcaption b { display: block; font-weight: 600; }
@@ -430,7 +430,7 @@ section { position: relative; z-index: 1; }
    CONTACT + FOOTER
    ========================================================= */
 .contact__inner { max-width: 820px; margin: 0 auto; text-align: center; }
-.contact__title { font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 7vw, 5.2rem); line-height: 1; letter-spacing: -.02em; margin: 14px 0 50px; }
+.contact__title { font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 7vw, 5.2rem); line-height: 1; letter-spacing: -.02em; margin: 10px 0 32px; }
 .contact__title span { display: block; }
 
 .form { text-align: left; }
@@ -454,7 +454,7 @@ section { position: relative; z-index: 1; }
 }
 .form__status { margin-top: 16px; min-height: 22px; font-size: .9rem; color: var(--cyan); }
 
-.footer { margin-top: clamp(80px, 12vh, 140px); }
+.footer { margin-top: clamp(50px, 8vh, 80px); }
 .footer__top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 30px; padding-bottom: 40px; border-bottom: 1px solid var(--line); }
 .footer__mail { font-family: var(--display); font-weight: 700; font-size: clamp(1.4rem, 4vw, 2.6rem); }
 .footer__mail:hover { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
