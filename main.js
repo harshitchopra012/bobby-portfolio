@@ -508,15 +508,11 @@
       const driveId = getGoogleDriveId(p.image);
       if (driveId) {
         const directUrl = `https://drive.google.com/uc?export=download&id=${driveId}`;
-        const isVertical = p.h > 360;
-        const iframeStyles = isVertical
-          ? "width:100%; max-width:450px; aspect-ratio:9/16; margin:0 auto; display:block; border:none;"
-          : "width:100%; max-width:800px; aspect-ratio:16/9; margin:0 auto; display:block; border:none;";
         
         heroMediaHtml = `<video src="${directUrl}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.onerror=null; const iframe=document.createElement('iframe'); iframe.src='https://drive.google.com/file/d/${driveId}/preview'; iframe.style.cssText=this.style.cssText; iframe.style.border='none'; this.replaceWith(iframe);"></video>`;
         showcaseMediaHtml = `
-          <div class="project-page__showcase-item" style="${isVertical ? 'max-width:450px;' : 'max-width:800px;'}">
-            <video src="${directUrl}" controls autoplay loop muted playsinline style="width:100%; max-height:75vh; display:block; margin:0 auto;" onerror="this.onerror=null; const iframe=document.createElement('iframe'); iframe.src='https://drive.google.com/file/d/${driveId}/preview'; iframe.style.cssText='${iframeStyles}'; this.replaceWith(iframe);"></video>
+          <div class="project-page__showcase-item" style="width: 100%; max-width: 1000px; margin: 0 auto;">
+            <video src="${directUrl}" controls autoplay loop muted playsinline style="width: 100%; max-height: 75vh; display: block; margin: 0 auto; object-fit: contain;" onerror="this.onerror=null; const iframe=document.createElement('iframe'); iframe.src='https://drive.google.com/file/d/${driveId}/preview'; iframe.style.cssText='width:100%; aspect-ratio:16/9; max-height:75vh; display:block; border:none;'; this.replaceWith(iframe);"></video>
           </div>
         `;
       } else {
@@ -524,15 +520,15 @@
         if (isVideo) {
           heroMediaHtml = `<video src="${p.image}" autoplay loop muted playsinline></video>`;
           showcaseMediaHtml = `
-            <div class="project-page__showcase-item">
-              <video src="${p.image}" controls autoplay loop muted playsinline></video>
+            <div class="project-page__showcase-item" style="width: 100%; max-width: 1000px; margin: 0 auto;">
+              <video src="${p.image}" controls autoplay loop muted playsinline style="width: 100%; max-height: 75vh; display: block; margin: 0 auto; object-fit: contain;"></video>
             </div>
           `;
         } else {
           heroMediaHtml = `<img src="${p.image}" alt="${p.title}" />`;
           showcaseMediaHtml = `
-            <div class="project-page__showcase-item">
-              <img src="${p.image}" alt="${p.title}" />
+            <div class="project-page__showcase-item" style="width: 100%; max-width: 1000px; margin: 0 auto;">
+              <img src="${p.image}" alt="${p.title}" style="width: 100%; max-height: 75vh; display: block; margin: 0 auto; object-fit: contain;" />
             </div>
           `;
         }
