@@ -255,14 +255,14 @@
     measurementId: "G-PNMGYFB58Q"
   };
 
-  let db;
+  let firestoreDb;
   let analytics;
   let storage;
   try {
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
-    db = firebase.firestore();
+    firestoreDb = firebase.firestore();
     analytics = firebase.analytics();
     storage = firebase.storage();
   } catch (e) {
@@ -271,8 +271,8 @@
 
   // Fetch from Firebase Firestore in real-time
   function syncWithFirebase() {
-    if (!db) return;
-    db.collection("portfolio").doc("projects").onSnapshot((doc) => {
+    if (!firestoreDb) return;
+    firestoreDb.collection("portfolio").doc("projects").onSnapshot((doc) => {
       if (doc.exists) {
         const list = doc.data().list;
         if (Array.isArray(list)) {
@@ -285,7 +285,7 @@
         }
       } else {
         // If no projects in DB yet, initialize Firestore with our defaults
-        db.collection("portfolio").doc("projects").set({ list: defaultProjects })
+        firestoreDb.collection("portfolio").doc("projects").set({ list: defaultProjects })
           .catch(err => console.error("Firebase initial set error:", err));
       }
     }, (err) => {
@@ -783,8 +783,8 @@
 
       localStorage.setItem("bobby_projects", JSON.stringify(projects));
       
-      if (window.firebase && db) {
-        db.collection("portfolio").doc("projects").set({ list: projects })
+      if (window.firebase && firestoreDb) {
+        firestoreDb.collection("portfolio").doc("projects").set({ list: projects })
           .then(() => console.log("Firestore synced successfully"))
           .catch((err) => console.error("Firestore sync error:", err));
       }
@@ -800,8 +800,8 @@
         projects.splice(idx, 1);
         localStorage.setItem("bobby_projects", JSON.stringify(projects));
         
-        if (window.firebase && db) {
-          db.collection("portfolio").doc("projects").set({ list: projects })
+        if (window.firebase && firestoreDb) {
+          firestoreDb.collection("portfolio").doc("projects").set({ list: projects })
             .then(() => console.log("Firestore synced successfully"))
             .catch((err) => console.error("Firestore sync error:", err));
         }
