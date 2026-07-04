@@ -611,9 +611,6 @@
     });
   });
 
-  /* ----------------------------------------------------
-     CONTACT FORM
-  ---------------------------------------------------- */
   const form = $("#contactForm");
   const status = $("#formStatus");
   form.addEventListener("submit", (e) => {
@@ -626,12 +623,49 @@
     }
     const btn = $("button[type=submit]", form);
     btn.querySelector("span").textContent = "Sending…";
-    setTimeout(() => {
-      status.style.color = "";
-      status.textContent = `Thanks ${data.get("name")} — your message is on its way. I'll be in touch soon.`;
-      form.reset();
-      btn.querySelector("span").textContent = "Send message";
-    }, 1100);
+
+    const messageData = {
+      id: "inq_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+      name: data.get("name").trim(),
+      email: data.get("email").trim(),
+      subject: (data.get("subject") || "").trim(),
+      message: data.get("message").trim(),
+      createdAt: Date.now()
+    };
+
+    if (window.firebase && firestoreDb) {
+      firestoreDb.collection("messages").add({
+        name: messageData.name,
+        email: messageData.email,
+        subject: messageData.subject,
+        message: messageData.message,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(() => {
+        status.style.color = "";
+        status.textContent = `Thanks ${messageData.name} — your message is on its way. I'll be in touch soon.`;
+        form.reset();
+        btn.querySelector("span").textContent = "Send message";
+      })
+      .catch((err) => {
+        console.error("Firestore save error:", err);
+        status.style.color = "#ff7a90";
+        status.textContent = "Something went wrong. Please try again or email me directly.";
+        btn.querySelector("span").textContent = "Send message";
+      });
+    } else {
+      // Local fallback
+      setTimeout(() => {
+        const localInquiries = JSON.parse(localStorage.getItem("bobby_inquiries") || "[]");
+        localInquiries.unshift(messageData);
+        localStorage.setItem("bobby_inquiries", JSON.stringify(localInquiries));
+
+        status.style.color = "";
+        status.textContent = `Thanks ${messageData.name} — your message is on its way. I'll be in touch soon. (Saved locally)`;
+        form.reset();
+        btn.querySelector("span").textContent = "Send message";
+      }, 1100);
+    }
   });
 
   /* ----------------------------------------------------
@@ -745,6 +779,7 @@
   let editingProjectIndex = -1;
 
   function showAdminDashboard() {
+    let inquiriesUnsubscribe = null;
     const existingDb = $("#adminDb");
     if (existingDb) existingDb.remove();
 
@@ -816,6 +851,11 @@
 
             <button class="btn btn--primary" id="saveAboutBtn" style="width: 100%; margin-top: 10px;"><span>Save About Details</span></button>
           </div>
+
+          <div class="admin-inquiries-panel" style="margin-top: 40px; border-top: 1px solid var(--line); padding-top: 32px;">
+            <h3 class="admin-db__section-title">Client Inquiries</h3>
+            <div class="admin-db__list" id="adminInquiriesList" style="max-height: 400px; overflow-y: auto;"></div>
+          </div>
         </div>
         <div class="admin-form-panel">
           <h3 class="admin-db__section-title" id="formPanelTitle">Add New Project</h3>
@@ -837,11 +877,11 @@
             <input type="number" class="admin-modal__input" id="projHeight" value="360" min="200" max="600" />
           </div>
           <div class="admin-modal__group">
-            <label class="admin-modal__label">Project Image</label>
+            <label class="admin-modal__label">Project Media (Image / Video)</label>
             <div style="display: flex; flex-direction: column; gap: 8px;">
               <div style="display: flex; gap: 8px; align-items: center;">
-                <input type="file" id="projFile" accept="image/*" style="display: none;" />
-                <button class="btn btn--ghost" id="uploadBtn" style="padding: 10px 16px; font-size: 0.85rem; flex: 1;"><span>Choose Project Image</span></button>
+                <input type="file" id="projFile" accept="image/*,video/*" style="display: none;" />
+                <button class="btn btn--ghost" id="uploadBtn" style="padding: 10px 16px; font-size: 0.85rem; flex: 1;"><span>Choose Project Media</span></button>
               </div>
               <div id="uploadProgress" style="display: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 4px;">
                 <div id="uploadProgressBar" style="width: 0%; height: 100%; background: var(--purple); transition: width 0.2s;"></div>
@@ -900,8 +940,34 @@
       if (!file) return;
 
       if (file.type.startsWith("video/")) {
-        alert("Videos cannot be stored directly in the database due to size limits. Please upload an image instead, or paste a video link (e.g. from YouTube, Vimeo, or a public CDN) directly into the URL field.");
-        projFile.value = "";
+        if (file.size > 1.5 * 1024 * 1024) {
+          alert(`Video file is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Due to database limits, uploaded videos must be under 1.5MB. For larger videos, please upload to a service like Vimeo/YouTube or a CDN and paste the URL.`);
+          projFile.value = "";
+          return;
+        }
+
+        uploadBtn.disabled = true;
+        $("#uploadBtn span", db).textContent = "Uploading Video...";
+        uploadProgress.style.display = "block";
+        uploadProgressBar.style.width = "40%";
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          projImageUrl.value = event.target.result;
+          uploadProgressBar.style.width = "100%";
+          uploadBtn.disabled = false;
+          $("#uploadBtn span", db).textContent = "Loaded!";
+          setTimeout(() => {
+            uploadProgress.style.display = "none";
+            $("#uploadBtn span", db).textContent = "Choose Project Media";
+          }, 1500);
+        };
+        reader.onerror = () => {
+          alert("Error reading video file.");
+          uploadBtn.disabled = false;
+          uploadProgress.style.display = "none";
+        };
+        reader.readAsDataURL(file);
         return;
       }
 
@@ -926,7 +992,7 @@
         $("#uploadBtn span", db).textContent = "Loaded!";
         setTimeout(() => {
           uploadProgress.style.display = "none";
-          $("#uploadBtn span", db).textContent = "Choose Project Image";
+          $("#uploadBtn span", db).textContent = "Choose Project Media";
         }, 1500);
       });
     });
@@ -937,6 +1003,7 @@
       document.body.style.overflow = "";
       document.body.classList.remove("admin-active");
       window.updateAdminItemsCallback = null;
+      if (inquiriesUnsubscribe) inquiriesUnsubscribe();
       setTimeout(() => db.remove(), 400);
     });
 
@@ -1054,6 +1121,89 @@
       renderAdminItems();
       updateCodeExport();
     };
+
+    // Sync Client Inquiries
+    if (window.firebase && firestoreDb) {
+      inquiriesUnsubscribe = firestoreDb.collection("messages").orderBy("createdAt", "desc").onSnapshot((qs) => {
+        const inquiries = [];
+        qs.forEach((doc) => {
+          const data = doc.data();
+          data.id = doc.id;
+          inquiries.push(data);
+        });
+        renderInquiries(inquiries);
+      }, (err) => {
+        console.error("Inquiries subscription error:", err);
+      });
+    } else {
+      // Local fallback
+      const syncLocalInquiries = () => {
+        const localInquiries = JSON.parse(localStorage.getItem("bobby_inquiries") || "[]");
+        renderInquiries(localInquiries);
+      };
+      syncLocalInquiries();
+      // Poll every 3 seconds to simulate live changes locally
+      const localPoll = setInterval(() => {
+        if (!$("#adminDb")) {
+          clearInterval(localPoll);
+          return;
+        }
+        syncLocalInquiries();
+      }, 3000);
+    }
+
+    function renderInquiries(inquiries) {
+      const list = $("#adminInquiriesList", db);
+      if (!list) return;
+      list.innerHTML = "";
+      if (inquiries.length === 0) {
+        list.innerHTML = `<div style="font-size:0.85rem; color:var(--muted); padding:10px;">No messages received yet.</div>`;
+        return;
+      }
+      inquiries.forEach((item) => {
+        const dateStr = item.createdAt && item.createdAt.toDate ? item.createdAt.toDate().toLocaleString() : (item.createdAt ? new Date(item.createdAt).toLocaleString() : "Unknown date");
+        const div = document.createElement("div");
+        div.className = "admin-item";
+        div.style.flexDirection = "column";
+        div.style.alignItems = "stretch";
+        div.style.gap = "8px";
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;">
+            <div>
+              <b style="font-size:0.95rem; color:#fff;">${item.name}</b>
+              <span style="font-size:0.8rem; color:var(--muted); margin-left:8px;">&lt;${item.email}&gt;</span>
+            </div>
+            <button class="admin-item__btn admin-item__btn--delete" data-inquiry-action="delete" data-id="${item.id}" title="Delete Message">🗑️</button>
+          </div>
+          <div style="font-size:0.82rem; color:var(--purple); font-weight:600;">Subject: ${item.subject || 'N/A'}</div>
+          <div style="font-size:0.85rem; color:var(--muted); white-space:pre-wrap; background:rgba(0,0,0,0.15); padding:8px; border-radius:6px; line-height:1.4;">${item.message}</div>
+          <div style="font-size:0.75rem; color:var(--faint); text-align:right;">${dateStr}</div>
+        `;
+        list.appendChild(div);
+      });
+
+      list.querySelectorAll("[data-inquiry-action=delete]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const docId = btn.dataset.id;
+          if (confirm("Are you sure you want to delete this message?")) {
+            deleteInquiry(docId);
+          }
+        });
+      });
+    }
+
+    function deleteInquiry(docId) {
+      if (window.firebase && firestoreDb && docId) {
+        firestoreDb.collection("messages").doc(docId).delete()
+          .then(() => console.log("Inquiry deleted successfully"))
+          .catch((err) => console.error("Inquiry delete error:", err));
+      } else {
+        let localInquiries = JSON.parse(localStorage.getItem("bobby_inquiries") || "[]");
+        localInquiries = localInquiries.filter(item => item.id !== docId);
+        localStorage.setItem("bobby_inquiries", JSON.stringify(localInquiries));
+        renderInquiries(localInquiries);
+      }
+    }
 
     function renderAdminItems() {
       const list = $("#adminProjList", db);
