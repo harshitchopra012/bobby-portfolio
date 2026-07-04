@@ -954,15 +954,16 @@
     $("#aboutLeadInput", db).value = currentAbout.leadText || $(".about__lead")?.textContent.trim() || "";
     $("#aboutBodyInput", db).value = currentAbout.bodyText || $(".about__body")?.textContent.trim() || "";
     
-    const statsList = $$(".stat", $(".stats"));
-    $("#aboutExpNum", db).value = currentAbout.expNum !== undefined ? currentAbout.expNum : ($(".stat__num", statsList[0])?.dataset.count || "2");
-    $("#aboutExpLabel", db).value = currentAbout.expLabel || ($(".stat__label", statsList[0])?.textContent.trim() || "Years of experience");
+    const statsContainer = $(".stats");
+    const statsList = statsContainer ? $$(".stat", statsContainer) : [];
+    $("#aboutExpNum", db).value = currentAbout.expNum !== undefined ? currentAbout.expNum : (statsList[0] ? ($(".stat__num", statsList[0])?.dataset.count || "2") : "2");
+    $("#aboutExpLabel", db).value = currentAbout.expLabel || (statsList[0] ? ($(".stat__label", statsList[0])?.textContent.trim() || "Years of experience") : "Years of experience");
     
-    $("#aboutProjNum", db).value = currentAbout.projNum !== undefined ? currentAbout.projNum : ($(".stat__num", statsList[1])?.dataset.count || "20");
-    $("#aboutProjLabel", db).value = currentAbout.projLabel || ($(".stat__label", statsList[1])?.textContent.trim() || "Projects delivered");
+    $("#aboutProjNum", db).value = currentAbout.projNum !== undefined ? currentAbout.projNum : (statsList[1] ? ($(".stat__num", statsList[1])?.dataset.count || "20") : "20");
+    $("#aboutProjLabel", db).value = currentAbout.projLabel || (statsList[1] ? ($(".stat__label", statsList[1])?.textContent.trim() || "Projects delivered") : "Projects delivered");
     
-    $("#aboutStat3Num", db).value = currentAbout.stat3Num !== undefined ? currentAbout.stat3Num : ($(".stat__num", statsList[2])?.dataset.count || "100");
-    $("#aboutStat3Label", db).value = currentAbout.stat3Label || ($(".stat__label", statsList[2])?.textContent.trim() || "Obsessive craft");
+    $("#aboutStat3Num", db).value = currentAbout.stat3Num !== undefined ? currentAbout.stat3Num : (statsList[2] ? ($(".stat__num", statsList[2])?.dataset.count || "100") : "100");
+    $("#aboutStat3Label", db).value = currentAbout.stat3Label || (statsList[2] ? ($(".stat__label", statsList[2])?.textContent.trim() || "Obsessive craft") : "Obsessive craft");
 
     // Hook up About Me listeners
     const aboutFile = $("#aboutFile", db);
