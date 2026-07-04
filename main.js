@@ -160,6 +160,25 @@
 
   function observeReveals() {
     $$(".reveal-fade:not(.hero .reveal-fade)").forEach((el) => revealObserver.observe(el));
+
+    // Contact title reveal
+    const contactTitle = $(".contact__title");
+    if (contactTitle) {
+      const contactMasks = $$(".reveal-mask > span", contactTitle);
+      const contactObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          contactMasks.forEach((el, i) => {
+            el.animate(
+              [{ transform: "translateY(110%)" }, { transform: "translateY(0%)" }],
+              { duration: 1100, delay: 120 * i, easing: "cubic-bezier(0.16,1,0.3,1)", fill: "forwards" }
+            );
+          });
+          contactObserver.disconnect();
+        });
+      }, { threshold: 0.15 });
+      contactObserver.observe(contactTitle);
+    }
   }
 
   /* ----------------------------------------------------
