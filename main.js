@@ -374,6 +374,7 @@
         </div>
         <span class="card__border"></span>`;
       grid.appendChild(card);
+      card.addEventListener("click", () => openLightbox(p));
 
       if (!p.image) {
         const canvas = $("canvas", card);
@@ -396,6 +397,73 @@
         card.addEventListener("mouseleave", () => { art.style.transform = ""; });
       });
     }
+  }
+
+  function openLightbox(p) {
+    const existing = $("#lightbox");
+    if (existing) existing.remove();
+
+    const lb = document.createElement("div");
+    lb.className = "lightbox";
+    lb.id = "lightbox";
+    
+    let mediaHtml = "";
+    if (p.image) {
+      const isVideo = p.image.toLowerCase().endsWith(".mp4") || p.image.toLowerCase().endsWith(".webm") || p.image.includes("video/");
+      if (isVideo) {
+        mediaHtml = `<video src="${p.image}" class="lightbox__media" autoplay loop controls playsinline></video>`;
+      } else {
+        mediaHtml = `<img src="${p.image}" class="lightbox__media" alt="${p.title}" />`;
+      }
+    } else {
+      mediaHtml = `<canvas id="lightboxCanvas" style="width: 500px; height: 500px; max-width: 90vw; max-height: 60vh; border-radius: 12px;"></canvas>`;
+    }
+
+    lb.innerHTML = `
+      <button class="lightbox__close" id="lightboxClose">&times;</button>
+      <div class="lightbox__content">
+        ${mediaHtml}
+      </div>
+      <div class="lightbox__info">
+        <h3 class="lightbox__title">${p.title}</h3>
+        <span class="lightbox__cat">${p.catLabel}</span>
+      </div>
+    `;
+
+    document.body.appendChild(lb);
+    document.body.style.overflow = "hidden";
+    document.body.classList.add("admin-active");
+
+    if (!p.image) {
+      const canvas = $("#lightboxCanvas", lb);
+      drawArt(canvas, 500, 500, p.c, 999);
+    }
+
+    setTimeout(() => lb.classList.add("is-active"), 50);
+
+    const close = () => {
+      lb.classList.remove("is-active");
+      document.body.style.overflow = "";
+      if (!$("#adminDb") && !$("#adminModal")) {
+        document.body.classList.remove("admin-active");
+      }
+      setTimeout(() => lb.remove(), 400);
+    };
+
+    $("#lightboxClose", lb).addEventListener("click", close);
+    lb.addEventListener("click", (e) => {
+      if (e.target === lb || e.target.classList.contains("lightbox__content")) {
+        close();
+      }
+    });
+
+    const escHandler = (e) => {
+      if (e.key === "Escape") {
+        close();
+        window.removeEventListener("keydown", escHandler);
+      }
+    };
+    window.addEventListener("keydown", escHandler);
   }
 
   renderGrid();
