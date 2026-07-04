@@ -141,7 +141,7 @@ body::before {
 .nav.is-scrolled { padding: 16px clamp(20px, 5vw, 64px); }
 .nav.is-scrolled::before { opacity: 1; }
 .nav__logo {
-  display: flex; align-items: center; height: 38px;
+  display: flex; align-items: center; height: 54px;
 }
 .nav__logo img {
   height: 100%; width: auto; object-fit: contain;
