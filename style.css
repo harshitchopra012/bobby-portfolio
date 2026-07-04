@@ -499,8 +499,9 @@ section { position: relative; z-index: 1; }
    CONTACT + FOOTER
    ========================================================= */
 .contact__inner { max-width: 820px; margin: 0 auto; text-align: center; }
-.contact__title { font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 7vw, 5.2rem); line-height: 1; letter-spacing: -.02em; margin: 10px 0 32px; }
+.contact__title { font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 6.2vw, 4.4rem); line-height: 1.1; letter-spacing: -.02em; margin: 10px 0 32px; }
 .contact__title span { display: block; }
+.contact__title .reveal-mask { padding-bottom: 0.08em; margin-bottom: -0.08em; padding-right: 0.08em; margin-right: -0.08em; }
 
 .form { text-align: left; }
 .form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
