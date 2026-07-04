@@ -374,7 +374,7 @@
         </div>
         <span class="card__border"></span>`;
       grid.appendChild(card);
-      card.addEventListener("click", () => openLightbox(p));
+      card.addEventListener("click", () => openProjectPage(p));
 
       if (!p.image) {
         const canvas = $("canvas", card);
@@ -399,63 +399,110 @@
     }
   }
 
-  function openLightbox(p) {
-    const existing = $("#lightbox");
+  function openProjectPage(p) {
+    const existing = $("#projectPage");
     if (existing) existing.remove();
 
-    const lb = document.createElement("div");
-    lb.className = "lightbox";
-    lb.id = "lightbox";
+    const pg = document.createElement("div");
+    pg.className = "project-page";
+    pg.id = "projectPage";
     
-    let mediaHtml = "";
+    let heroMediaHtml = "";
+    let showcaseMediaHtml = "";
     if (p.image) {
       const isVideo = p.image.toLowerCase().endsWith(".mp4") || p.image.toLowerCase().endsWith(".webm") || p.image.includes("video/");
       if (isVideo) {
-        mediaHtml = `<video src="${p.image}" class="lightbox__media" autoplay loop controls playsinline></video>`;
+        heroMediaHtml = `<video src="${p.image}" autoplay loop muted playsinline></video>`;
+        showcaseMediaHtml = `
+          <div class="project-page__showcase-item">
+            <video src="${p.image}" controls autoplay loop muted playsinline></video>
+          </div>
+        `;
       } else {
-        mediaHtml = `<img src="${p.image}" class="lightbox__media" alt="${p.title}" />`;
+        heroMediaHtml = `<img src="${p.image}" alt="${p.title}" />`;
+        showcaseMediaHtml = `
+          <div class="project-page__showcase-item">
+            <img src="${p.image}" alt="${p.title}" />
+          </div>
+        `;
       }
     } else {
-      mediaHtml = `<canvas id="lightboxCanvas" style="width: 500px; height: 500px; max-width: 90vw; max-height: 60vh; border-radius: 12px;"></canvas>`;
+      heroMediaHtml = `<canvas id="projectPageCanvas" style="width: 100%; height: 100%;"></canvas>`;
+      showcaseMediaHtml = `
+        <div class="project-page__showcase-item">
+          <canvas id="projectPageShowcaseCanvas" style="width: 100%; height: 450px;"></canvas>
+        </div>
+      `;
     }
 
-    lb.innerHTML = `
-      <button class="lightbox__close" id="lightboxClose">&times;</button>
-      <div class="lightbox__content">
-        ${mediaHtml}
+    const defaultDesc = `An immersive design study exploring the creative process, visual execution, and branding language developed for "${p.title}". Designed and executed to establish a distinct, modern identity that resonates across digital platforms and physical touchpoints. This case study details the conceptual thinking, design decisions, and ultimate outcome of the collaboration.`;
+    const descriptionText = p.description || defaultDesc;
+
+    pg.innerHTML = `
+      <div class="project-page__header">
+        <button class="project-page__back" id="projectPageBack">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <span>Back to Work</span>
+        </button>
       </div>
-      <div class="lightbox__info">
-        <h3 class="lightbox__title">${p.title}</h3>
-        <span class="lightbox__cat">${p.catLabel}</span>
+      <div class="project-page__hero">
+        <div class="project-page__hero-media">
+          ${heroMediaHtml}
+        </div>
+      </div>
+      <div class="project-page__content">
+        <div class="project-page__meta">
+          <div class="project-page__meta-group">
+            <span class="project-page__meta-label">Category</span>
+            <span class="project-page__meta-value">${p.catLabel}</span>
+          </div>
+          <div class="project-page__meta-group">
+            <span class="project-page__meta-label">Year</span>
+            <span class="project-page__meta-value">${p.year || '2026'}</span>
+          </div>
+          <div class="project-page__meta-group">
+            <span class="project-page__meta-label">Client</span>
+            <span class="project-page__meta-value">${p.client || 'Confidential'}</span>
+          </div>
+          <div class="project-page__meta-group">
+            <span class="project-page__meta-label">Role</span>
+            <span class="project-page__meta-value">Lead Designer</span>
+          </div>
+        </div>
+        <div class="project-page__details">
+          <h1 class="project-page__title">${p.title}</h1>
+          <div class="project-page__description">${descriptionText}</div>
+          <div class="project-page__media-showcase">
+            <h4 class="project-page__meta-label" style="margin-bottom: 10px;">Visual Showcase</h4>
+            ${showcaseMediaHtml}
+          </div>
+        </div>
       </div>
     `;
 
-    document.body.appendChild(lb);
+    document.body.appendChild(pg);
     document.body.style.overflow = "hidden";
     document.body.classList.add("admin-active");
 
     if (!p.image) {
-      const canvas = $("#lightboxCanvas", lb);
-      drawArt(canvas, 500, 500, p.c, 999);
+      const canvasHero = $("#projectPageCanvas", pg);
+      const canvasShowcase = $("#projectPageShowcaseCanvas", pg);
+      drawArt(canvasHero, 1200, 600, p.c, 123);
+      drawArt(canvasShowcase, 1000, 450, p.c, 456);
     }
 
-    setTimeout(() => lb.classList.add("is-active"), 50);
+    setTimeout(() => pg.classList.add("is-active"), 50);
 
     const close = () => {
-      lb.classList.remove("is-active");
+      pg.classList.remove("is-active");
       document.body.style.overflow = "";
       if (!$("#adminDb") && !$("#adminModal")) {
         document.body.classList.remove("admin-active");
       }
-      setTimeout(() => lb.remove(), 400);
+      setTimeout(() => pg.remove(), 500);
     };
 
-    $("#lightboxClose", lb).addEventListener("click", close);
-    lb.addEventListener("click", (e) => {
-      if (e.target === lb || e.target.classList.contains("lightbox__content")) {
-        close();
-      }
-    });
+    $("#projectPageBack", pg).addEventListener("click", close);
 
     const escHandler = (e) => {
       if (e.key === "Escape") {
@@ -670,6 +717,18 @@
             </div>
           </div>
           <div class="admin-modal__group">
+            <label class="admin-modal__label">Year</label>
+            <input type="text" class="admin-modal__input" id="projYear" value="2026" placeholder="e.g. 2026" />
+          </div>
+          <div class="admin-modal__group">
+            <label class="admin-modal__label">Client / Platform</label>
+            <input type="text" class="admin-modal__input" id="projClient" value="Confidential" placeholder="e.g. Personal Project" />
+          </div>
+          <div class="admin-modal__group">
+            <label class="admin-modal__label">Project Description</label>
+            <textarea class="admin-modal__input" id="projDesc" placeholder="Describe the project case study details..." style="min-height: 80px; resize: vertical; padding: 12px;"></textarea>
+          </div>
+          <div class="admin-modal__group">
             <label class="admin-modal__label">Fallback Colors (for canvas gradient)</label>
             <div class="admin-form-panel__colors">
               <input type="color" class="admin-modal__input" id="projCol1" value="#ec0909" style="height:45px; padding:2px;" />
@@ -804,6 +863,9 @@
       $("#projCol1", db).value = p.c[0] || "#ec0909";
       $("#projCol2", db).value = p.c[1] || "#151109";
       $("#projImageUrl", db).value = p.image || "";
+      $("#projYear", db).value = p.year || "2026";
+      $("#projClient", db).value = p.client || "Confidential";
+      $("#projDesc", db).value = p.description || "";
       $("#saveProjBtn span", db).textContent = "Update Project";
       cancelEditBtn.style.display = "block";
     }
@@ -818,6 +880,9 @@
       $("#projCol2", db).value = "#151109";
       $("#projImageUrl", db).value = "";
       $("#projFile", db).value = "";
+      $("#projYear", db).value = "2026";
+      $("#projClient", db).value = "Confidential";
+      $("#projDesc", db).value = "";
       $("#saveProjBtn span", db).textContent = "Add Project";
       cancelEditBtn.style.display = "none";
     }
@@ -829,6 +894,9 @@
       const c1 = $("#projCol1", db).value;
       const c2 = $("#projCol2", db).value;
       const image = $("#projImageUrl", db).value.trim();
+      const year = $("#projYear", db).value.trim() || "2026";
+      const client = $("#projClient", db).value.trim() || "Confidential";
+      const desc = $("#projDesc", db).value.trim() || "";
 
       if (!title) {
         alert("Please enter a project title.");
@@ -849,7 +917,10 @@
         catLabel: catLabels[cat] || "Design",
         h,
         c: [c1, c2],
-        image: image || ""
+        image: image || "",
+        year,
+        client,
+        description: desc
       };
 
       if (editingProjectIndex > -1) {
