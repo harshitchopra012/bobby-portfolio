@@ -825,7 +825,6 @@
               <option value="branding">Branding</option>
               <option value="social">Social Media</option>
               <option value="posters">Posters</option>
-              <option value="ui">Web Design</option>
               <option value="motion">Motion Graphics</option>
             </select>
           </div>
@@ -1142,7 +1141,7 @@
         branding: "Branding",
         social: "Social Media",
         posters: "Poster",
-        ui: "Web Design",
+        ui: "Design",
         motion: "Motion Graphics"
       };
 
