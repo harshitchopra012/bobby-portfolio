@@ -551,11 +551,6 @@
           <span>Back to Work</span>
         </button>
       </div>
-      <div class="project-page__hero">
-        <div class="project-page__hero-media">
-          ${heroMediaHtml}
-        </div>
-      </div>
       <div class="project-page__content">
         <div class="project-page__meta">
           <div class="project-page__meta-group">
@@ -593,8 +588,8 @@
     if (!p.image) {
       const canvasHero = $("#projectPageCanvas", pg);
       const canvasShowcase = $("#projectPageShowcaseCanvas", pg);
-      drawArt(canvasHero, 1200, 600, p.c, 123);
-      drawArt(canvasShowcase, 1000, 450, p.c, 456);
+      if (canvasHero) drawArt(canvasHero, 1200, 600, p.c, 123);
+      if (canvasShowcase) drawArt(canvasShowcase, 1000, 450, p.c, 456);
     }
 
     setTimeout(() => pg.classList.add("is-active"), 50);
