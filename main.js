@@ -272,21 +272,18 @@
   // Fetch from Firebase Firestore in real-time
   function syncWithFirebase() {
     if (!firestoreDb) return;
-    firestoreDb.collection("portfolio").doc("projects").onSnapshot((doc) => {
-      if (doc.exists) {
-        const list = doc.data().list;
-        if (Array.isArray(list)) {
-          projects = list;
-          localStorage.setItem("bobby_projects", JSON.stringify(projects));
-          renderGrid();
-          if (typeof window.updateAdminItemsCallback === "function") {
-            window.updateAdminItemsCallback();
-          }
-        }
-      } else {
-        // If no projects in DB yet, initialize Firestore with our defaults
-        firestoreDb.collection("portfolio").doc("projects").set({ list: defaultProjects })
-          .catch(err => console.error("Firebase initial set error:", err));
+    firestoreDb.collection("projects").orderBy("createdAt", "asc").onSnapshot((querySnapshot) => {
+      const list = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        data.id = doc.id; // Save doc ID
+        list.push(data);
+      });
+      projects = list;
+      localStorage.setItem("bobby_projects", JSON.stringify(projects));
+      renderGrid();
+      if (typeof window.updateAdminItemsCallback === "function") {
+        window.updateAdminItemsCallback();
       }
     }, (err) => {
       console.error("Firebase snapshot listen error:", err);
@@ -777,7 +774,7 @@
       uploadProgress.style.display = "block";
       uploadProgressBar.style.width = "40%";
 
-      compressAndConvertToBase64(file, 700, 700, 0.65, (base64Url, origW, origH) => {
+      compressAndConvertToBase64(file, 1200, 1200, 0.85, (base64Url, origW, origH) => {
         projImageUrl.value = base64Url;
 
         // Auto-calculate height based on aspect ratio (base width 360px)
@@ -902,6 +899,10 @@
         alert("Please enter a project title.");
         return;
       }
+      if (!desc) {
+        alert("Please enter a project description.");
+        return;
+      }
 
       const catLabels = {
         branding: "Branding",
@@ -923,40 +924,56 @@
         description: desc
       };
 
-      if (editingProjectIndex > -1) {
-        projects[editingProjectIndex] = newProj;
-      } else {
-        projects.push(newProj);
-      }
-
-      localStorage.setItem("bobby_projects", JSON.stringify(projects));
-      
       if (window.firebase && firestoreDb) {
-        firestoreDb.collection("portfolio").doc("projects").set({ list: projects })
-          .then(() => console.log("Firestore synced successfully"))
-          .catch((err) => console.error("Firestore sync error:", err));
+        if (editingProjectIndex > -1) {
+          const docId = projects[editingProjectIndex].id;
+          newProj.createdAt = projects[editingProjectIndex].createdAt || Date.now();
+          firestoreDb.collection("projects").doc(docId).set(newProj)
+            .then(() => console.log("Firestore project updated successfully"))
+            .catch((err) => console.error("Firestore update error:", err));
+        } else {
+          newProj.createdAt = Date.now();
+          firestoreDb.collection("projects").add(newProj)
+            .then(() => console.log("Firestore project added successfully"))
+            .catch((err) => console.error("Firestore add error:", err));
+        }
+      } else {
+        // Fallback for local-only testing
+        if (editingProjectIndex > -1) {
+          newProj.createdAt = projects[editingProjectIndex].createdAt || Date.now();
+          newProj.id = projects[editingProjectIndex].id;
+          projects[editingProjectIndex] = newProj;
+        } else {
+          newProj.createdAt = Date.now();
+          newProj.id = "local_" + Date.now();
+          projects.push(newProj);
+        }
+        localStorage.setItem("bobby_projects", JSON.stringify(projects));
+        renderAdminItems();
+        updateCodeExport();
+        resetForm();
+        renderGrid();
       }
 
-      renderAdminItems();
-      updateCodeExport();
-      resetForm();
-      renderGrid();
+      if (window.firebase && firestoreDb) {
+        resetForm();
+      }
     }
 
     function deleteProject(idx) {
       if (confirm(`Are you sure you want to delete "${projects[idx].title}"?`)) {
-        projects.splice(idx, 1);
-        localStorage.setItem("bobby_projects", JSON.stringify(projects));
-        
-        if (window.firebase && firestoreDb) {
-          firestoreDb.collection("portfolio").doc("projects").set({ list: projects })
-            .then(() => console.log("Firestore synced successfully"))
-            .catch((err) => console.error("Firestore sync error:", err));
+        const docId = projects[idx].id;
+        if (window.firebase && firestoreDb && docId && !docId.startsWith("local_")) {
+          firestoreDb.collection("projects").doc(docId).delete()
+            .then(() => console.log("Firestore project deleted successfully"))
+            .catch((err) => console.error("Firestore delete error:", err));
+        } else {
+          projects.splice(idx, 1);
+          localStorage.setItem("bobby_projects", JSON.stringify(projects));
+          renderAdminItems();
+          updateCodeExport();
+          renderGrid();
         }
-
-        renderAdminItems();
-        updateCodeExport();
-        renderGrid();
       }
     }
 
